@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cheyitou.common.dao.ReservationMapper">
+
+  <resultMap id="RM_Reservation" type="com.cheyitou.common.model.po.Reservation">
+    <id column="ID" jdbcType="INTEGER" property="id" />
+    <result column="GO_TIME" jdbcType="TIMESTAMP" property="goTime" />
+    <result column="ORDER_TIME" jdbcType="TIMESTAMP" property="orderTime" />
+    <result column="ADDRESS" jdbcType="VARCHAR" property="address" />
+    <result column="CAR_TYPE" jdbcType="CHAR" property="carType" />
+    <result column="CAR_ADVERT" jdbcType="CHAR" property="carAdvert" />
+    <result column="IS_RESERVATION" jdbcType="CHAR" property="isReservation" />
+    <result column="STATUS" jdbcType="CHAR" property="status" />
+    <result column="USER_ID" jdbcType="INTEGER" property="userId" />
+    <result column="GET_CREATE" property="getCreate" jdbcType="TIMESTAMP" />
+    <result column="GET_MODIFIED" property="getModified" jdbcType="TIMESTAMP" />
+    <result column="EXPIRED" property="expired" jdbcType="TIMESTAMP" />
+    <result column="IS_TO_RES" property="isToRes" jdbcType="TIMESTAMP" />
+  </resultMap>
+  
+  <resultMap id="RM_ReservationVO" type="com.cheyitou.common.model.vo.ReservationVO" extends="RM_Reservation">
+    <result column="ORDER_NUM" jdbcType="VARCHAR" property="orderNum" />
+    <result column="ORDER_TIME" jdbcType="TIMESTAMP" property="orderTime" />
+    <result column="CAR_TYPE" jdbcType="CHAR" property="carType" />
+    <result column="MOBILE_PHONE" jdbcType="VARCHAR" property="mobilePhone" />
+    <result column="DRIVING_LICENSE" jdbcType="VARCHAR" property="drivingLicense" />
+    <result column="DRVER_CARD" jdbcType="VARCHAR" property="drverCard" />
+    <result property="startTime" jdbcType="TIMESTAMP"  javaType="java.util.Date" />
+	<result property="endTime"   jdbcType="TIMESTAMP"  javaType="java.util.Date" />
+  </resultMap>
+  
+  <!-- list数据 -->
+  <select id="list" parameterType="com.cheyitou.common.model.vo.ReservationPagination" resultMap="RM_ReservationVO">
+    SELECT * FROM c_reservation AS cr LEFT JOIN c_order AS co ON cr.ID=co.RES_ID 
+	LEFT JOIN c_person AS cp ON cr.ID=cp.RES_ID LEFT JOIN c_car_info AS cc ON cr.ID=cc.RES_ID 
+	<where>
+		<if test="reservationVO != null">
+			<if test="reservationVO.status != null and reservationVO.status !='' ">cr.STATUS = #{reservationVO.status}</if>
+			<if test="reservationVO.startTime != null"> and cr.ORDER_TIME <![CDATA[> ]]> #{reservationVO.startTime}</if>
+			<if test="reservationVO.endTime != null"> and cr.ORDER_TIME <![CDATA[< ]]> #{reservationVO.endTime} </if>
+		</if>
+	</where>
+	limit #{page}, #{rows}; 
+  </select>
+  
+  <select id="total" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+  	SELECT count(*) FROM c_reservation AS cr LEFT JOIN c_order AS co ON cr.ID=co.RES_ID 
+	LEFT JOIN c_person AS cp ON cr.ID=cp.RES_ID LEFT JOIN c_car_info AS cc ON cr.ID=cc.RES_ID
+	<where>
+	<if test="status != null and status !='' ">cr.STATUS = #{status}</if>
+	</where>
+  </select>
+  
+  <insert id="create" parameterType="com.cheyitou.common.model.po.Reservation">
+    insert into c_reservation (
+     ID, 
+     GO_TIME, 
+     ORDER_TIME, 
+      ADDRESS, 
+      CAR_TYPE, 
+      CAR_ADVERT,
+      IS_RESERVATION,
+      STATUS,
+      USER_ID,
+      GET_CREATE,
+      GET_MODIFIED,
+      EXPIRED
+      ) values (
+	  #{id}, 
+	  now(), 
+	  #{orderTime}, 
+      #{address}, 
+      #{carType}, 
+      #{carAdvert},
+      #{isReservation},
+      #{status},
+      #{userId},
+      now(),
+      now(),
+      #{expired}
+      )
+  </insert>
+  
+  <update id="update" parameterType="com.cheyitou.common.model.po.Reservation">
+    update c_reservation
+    set ORDER_TIME = now()
+       <if test="status !=null and status !='' ">,STATUS =#{status}</if>
+       <if test="expired !=null and expired !='' ">,EXPIRED =#{expired}</if>
+       <if test="isToRes !=null and isToRes !='' ">,IS_TO_RES =#{isToRes}</if>
+    where ID = #{id}
+  </update>
+  
+  
+</mapper>

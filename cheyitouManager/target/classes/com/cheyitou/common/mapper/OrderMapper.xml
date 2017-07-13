@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cheyitou.common.dao.OrderMapper">
+
+  <resultMap id="RM_Order" type="com.cheyitou.common.model.po.Order">
+    <id column="ID" jdbcType="INTEGER" property="id" />
+    <result column="ORDER_NUM" jdbcType="VARCHAR" property="orderNum" />
+    <result column="ORDER_COUNT" jdbcType="VARCHAR" property="orderCount" />
+    <result column="ACCOUNT_BALANCE" jdbcType="DECIMAL" property="accountBalance" />
+    <result column="STATUS" jdbcType="CHAR" property="status" />
+    <result column="FRONT_IMG" jdbcType="VARCHAR" property="frontImg" />
+    <result column="BACK_IMG" jdbcType="VARCHAR" property="backImg" />
+    <result column="SIDE_IMG" jdbcType="VARCHAR" property="sideImg" />
+    <result column="USER_ID" jdbcType="INTEGER" property="userId" />
+    <result column="RES_ID" jdbcType="INTEGER" property="resId" />
+    <result column="GET_CREATE" property="getCreate" jdbcType="TIMESTAMP" />
+    <result column="GET_MODIFIED" property="getModified" jdbcType="TIMESTAMP" />
+  </resultMap>
+  
+  <resultMap type="com.cheyitou.common.model.vo.OrderVO" id="RM_OrderVO" extends="RM_Order">
+	  	<result property="startTime" jdbcType="TIMESTAMP"  javaType="java.util.Date" />
+		<result property="endTime"   jdbcType="TIMESTAMP"  javaType="java.util.Date" />
+		 <result column="MOBILE_PHONE" jdbcType="VARCHAR" property="mobilePhone" />
+  </resultMap>
+  
+  <select id="list" parameterType="com.cheyitou.common.model.vo.OrderPagination" resultMap="RM_OrderVO">
+    select co.id,co.ORDER_NUM,cp.MOBILE_PHONE,co.GET_MODIFIED,co.FRONT_IMG,co.BACK_IMG,co.SIDE_IMG,co.STATUS
+     FROM c_order as co,c_reservation as cr,c_person as cp 
+     WHERE co.RES_ID=cr.ID and cp.RES_ID=cr.ID
+     <if test="orderVO != null">
+     	<if test="orderVO.status != null and orderVO.status !='' ">and co.STATUS=#{orderVO.status}</if>
+    	<if test="orderVO.startTime != null"> and co.GET_MODIFIED <![CDATA[> ]]> #{orderVO.startTime}</if>
+		<if test="orderVO.endTime != null"> and co.GET_MODIFIED <![CDATA[< ]]> #{orderVO.endTime} </if>
+     </if>
+     limit #{page}, #{rows}
+  </select>
+  
+  <select id="total" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+  		select count(*) FROM c_order as co,c_reservation as cr,c_person as cp WHERE co.RES_ID=cr.ID and cp.RES_ID=cr.ID
+  		<if test="status != null and status !='' ">and co.STATUS=#{status}</if>
+  </select>
+  
+  
+  <insert id="create" parameterType="com.cheyitou.common.model.po.Order">
+    insert into c_order (
+      ID,
+      USER_ID,
+      RES_ID, 
+      ORDER_NUM,
+      ORDER_COUNT, 
+      ACCOUNT_BALANCE, 
+      STATUS, 
+      FRONT_IMG,
+      BACK_IMG,
+      SIDE_IMG,
+      GET_CREATE, 
+      GET_MODIFIED
+      ) values (
+      #{id}, 
+      #{userId}, 
+      #{resId}, 
+      #{orderNum}, 
+      #{orderCount}, 
+      #{accountBalance}, 
+      #{status}, 
+      #{frontImg},
+      #{backImg},
+      #{sideImg},
+      now(),
+      now()
+      )
+  </insert>
+  
+  <update id="update" parameterType="com.cheyitou.common.model.po.Order">
+    update c_order
+    set GET_MODIFIED = now()
+      <if test="status !=null and status !='' ">,STATUS = #{status}</if>
+    where ID = #{id}
+  </update>
+  
+</mapper>
