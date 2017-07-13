@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cheyitou.common.dao.mapper.DepositMapper">
+  <resultMap id="RM_Deposit" type="com.cheyitou.common.model.po.Deposit">
+   
+    <id column="ID" jdbcType="INTEGER" property="id" />
+    <result column="GET_TIME" jdbcType="TIMESTAMP" property="get_time" />
+    <result column="GET_ACCOUNT" jdbcType="VARCHAR" property="get_account" />
+    <result column="STATUS" jdbcType="CHAR" property="status" />
+    <result column="GET_PHONE" jdbcType="VARCHAR" property="get_phone" />
+    <result column="USER_ID" jdbcType="INTEGER" property="user_id" />
+    <result column="GET_CREATE" property="getCreate" jdbcType="TIMESTAMP" />
+    <result column="GET_MODIFIED" property="getModified" jdbcType="TIMESTAMP" />
+  </resultMap>
+
+  <select id="queryByUserId" parameterType="java.lang.Integer" resultMap="RM_Deposit">
+    select 
+    ID, GET_TIME, GET_ACCOUNT, STATUS, GET_PHONE,USER_ID,GET_MODIFIED，GET_CREATE
+    from c_deposit
+    where USER_ID = #{user_id}
+  </select>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from c_deposit
+    where ID = #{id}
+  </delete>
+  
+  <insert id="insert" parameterType="com.cheyitou.common.model.po.Deposit">
+    insert into c_deposit (
+    ID, GET_TIME, GET_ACCOUNT, 
+      STATUS, GET_PHONE,USER_ID,GET_MODIFIED，GET_CREATE)
+    values (#{id}, #{get_time}, #{get_account}, 
+      #{status}, #{get_phone},#{user_id},now(),now())
+  </insert>
+  
+  <update id="update" parameterType="com.cheyitou.common.model.po.Deposit">
+    update c_deposit
+    set GET_MODIFIED = now(),GET_TIME = now(),
+      <if test="get_account !=null and get_account != '' ">GET_ACCOUNT = #{get_account},</if>
+      <if test="status !=null and status !='' ">STATUS = #{status},</if>
+      <if test="get_phone !=null and get_phone !='' ">GET_PHONE = #{get_phone}</if>
+    where USER_ID = #{user_id}
+  </update>
+</mapper>

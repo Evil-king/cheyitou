@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cheyitou.common.dao.mapper.MyAccountMapper">
+
+  <resultMap id="RM_MyAccount" type="com.cheyitou.common.model.po.MyAccount">
+    <id column="ID" jdbcType="INTEGER" property="id" />
+    <result column="NUM_ORDER_OVER" jdbcType="VARCHAR" property="num_order_over" />
+    <result column="ACCOUNT_AMOUNT" jdbcType="DECIMAL" property="account_amount" />
+    <result column="GET_AMOUNT" jdbcType="DECIMAL" property="get_amount" />
+    <result column="PAYMENT_FLOW" jdbcType="VARCHAR" property="payment_flow" />
+    <result column="FUNDING_SOURCE" jdbcType="VARCHAR" property="funding_source" />
+    <result column="USER_ID" jdbcType="INTEGER" property="user_id" />
+    <result column="ORDER_NUM" jdbcType="VARCHAR" property="order_num" />
+    <result column="GET_CREATE" property="getCreate" jdbcType="TIMESTAMP" />
+    <result column="GET_MODIFIED" property="getModified" jdbcType="TIMESTAMP" />
+  </resultMap>
+  
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="RM_MyAccount">
+    select 
+    ID, NUM_ORDER_OVER, ACCOUNT_AMOUNT, GET_AMOUNT, PAYMENT_FLOW,ORDER_NUM,USER_ID,FUNDING_SOURCE,GET_CREATE，GET_MODIFIED
+    from c_my_account
+    where USER_ID = #{user_id}
+  </select>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from c_my_account
+    where ID = #{ID}
+  </delete>
+  
+  <insert id="insert" parameterType="com.cheyitou.common.model.po.MyAccount">
+    insert into c_my_account 
+    (
+      ID, 
+      NUM_ORDER_OVER, 
+      ACCOUNT_AMOUNT, 
+      GET_AMOUNT, 
+      PAYMENT_FLOW,
+      ORDER_NUM,
+      USER_ID,
+      FUNDING_SOURCE,
+      GET_CREATE,
+      GET_MODIFIED
+      )values (
+      #{id}, 
+      #{num_order_over}, 
+      #{account_amount}, 
+      #{get_amount}, 
+      #{payment_flow},
+      #{user_id},
+      #{funding_source},
+      #{order_num},
+      now(),
+      now()
+      )
+  </insert>
+  
+  <update id="updateByPrimaryKey" parameterType="com.cheyitou.common.model.po.MyAccount">
+    update c_my_account set GET_MODIFIED=now(),
+    <if test="num_order_over != null and num_order_over != '' ">NUM_ORDER_OVER = #{num_order_over},</if>
+      <if test="account_amount != null and account_amount != '' ">ACCOUNT_AMOUNT = #{account_amount},</if>
+      <if test="get_amount != null and get_amount !='' ">GET_AMOUNT = #{get_amount},</if>
+     <if test="payment_flow != null and payment_flow != '' ">PAYMENT_FLOW = #{payment_flow}</if>
+    where USER_ID = #{user_id}
+  </update>
+</mapper>

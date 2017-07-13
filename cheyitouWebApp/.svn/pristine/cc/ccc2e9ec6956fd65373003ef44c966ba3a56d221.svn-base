@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cheyitou.common.dao.mapper.ReservationMapper">
+
+  <resultMap id="RM_Reservation" type="com.cheyitou.common.model.po.Reservation">
+    <id column="ID" jdbcType="INTEGER" property="id" />
+    <result column="GO_TIME" jdbcType="TIMESTAMP" property="go_time" />
+    <result column="ORDER_TIME" jdbcType="TIMESTAMP" property="order_time" />
+    <result column="ADDRESS" jdbcType="VARCHAR" property="address" />
+    <result column="CAR_TYPE" jdbcType="CHAR" property="car_type" />
+    <result column="CAR_ADVERT" jdbcType="CHAR" property="car_advert" />
+    <result column="IS_RESERVATION" jdbcType="CHAR" property="is_reservation" />
+    <result column="STATUS" jdbcType="CHAR" property="status" />
+    <result column="USER_ID" jdbcType="INTEGER" property="user_id" />
+    <result column="GET_CREATE" property="getCreate" jdbcType="TIMESTAMP" />
+    <result column="GET_MODIFIED" property="getModified" jdbcType="TIMESTAMP" />
+  </resultMap>
+  
+  <select id="queryByUserId" parameterType="java.lang.Integer" resultMap="RM_Reservation">
+    select 
+     ID, GO_TIME, ORDER_TIME, ADDRESS, CAR_TYPE, CAR_ADVERT, STATUS, USER_ID, IS_RESERVATION, GET_CREATE, GET_MODIFIED
+    from c_reservation
+    where USER_ID = #{user_id}
+  </select>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from c_reservation
+    where ID = #{id}
+  </delete>
+  
+  <insert id="create" parameterType="com.cheyitou.common.model.po.Reservation">
+    insert into c_reservation (
+     ID, 
+     GO_TIME, 
+     ORDER_TIME, 
+      ADDRESS, 
+      CAR_TYPE, 
+      CAR_ADVERT,
+      IS_RESERVATION,
+      STATUS,
+      USER_ID
+      ) values (
+	  #{id}, 
+	  now(), 
+	  now(), 
+      #{address}, 
+      #{car_type}, 
+      #{car_advert},
+      #{is_reservation},
+      #{status},
+      #{user_id}
+      )
+  </insert>
+  
+  <update id="updateByUserID" parameterType="com.cheyitou.common.model.po.Reservation">
+    update c_reservation
+    set GO_TIME = now(),ORDER_TIME = now(),
+       <if test="is_reservation != null and is_reservation !='' ">,IS_RESERVATION = #{is_reservation}</if>
+    where USER_ID = #{user_id}
+  </update>
+</mapper>

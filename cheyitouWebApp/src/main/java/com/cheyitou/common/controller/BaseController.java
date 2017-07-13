@@ -1,0 +1,85 @@
+package com.cheyitou.common.controller;
+
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+
+import com.cheyitou.common.exception.BaseException;
+import com.cheyitou.common.util.SessionIdCache;
+import com.cheyitou.common.util.StringUtil;
+
+public class BaseController {
+	
+//	 private static Logger log = LoggerFactory.getLogger(BaseController.class);
+	 /**
+     * @方法名： setUserId
+     * @功能描述：设置会员ID
+     * @param request
+     * @param response
+     * @param memberId void
+     * @创建时间：2016年5月19日 下午3:59:22
+     */
+    public static void setUserId(HttpServletRequest request, HttpServletResponse response, Integer userId) {
+        String requestType = request.getHeader("X-Requested-With");
+        boolean isAjax = "XMLHttpRequest".equals(requestType);
+        if (isAjax) {
+            // PC端存入cookie
+        } else {
+            // 移动端存入Header
+//            String sid = DigestUtils.md5Hex(userId.toString());
+            String sid = userId.toString();
+            SessionIdCache.setValue(sid, userId);
+            response.addHeader("sid", sid);
+        }
+    }
+	
+    /**
+     * @方法名： getUserId
+     * @功能描述：获取会员ID
+     * @param request
+     * @return Integer
+     * @throws HeMiException 
+     * @作者：caiwl
+     * @创建时间：2016年5月10日 上午11:25:00
+     */
+    public static Integer getUserId(HttpServletRequest request) throws BaseException {
+        String requestType = request.getHeader("X-Requested-With");
+        boolean isAjax = "XMLHttpRequest".equals(requestType);
+        if (isAjax) {
+            return (Integer) request.getAttribute("userId");
+        } else {
+            String sid = request.getHeader("sid");
+            if (StringUtil.isEmpty(sid)) {
+                throw new BaseException("用户未登录，无法调用该接口！");
+            }
+            Integer userId = SessionIdCache.getValue(sid);
+            if (userId == null) {
+                throw new BaseException("SID失效，需要重新登录！");
+            }
+            return userId;
+        }
+    }
+    
+    /**
+     * @方法名： getIP
+     * @功能描述：获取请求IP
+     * @param request
+     * @return String
+     * @作者：caiwl
+     * @创建时间：2016年5月10日 上午11:24:44
+     */
+    public static String getIP(HttpServletRequest request) {
+        String ip = request.getHeader("x-forwarded-for");
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("Proxy-Client-IP");
+        }
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("WL-Proxy-Client-IP");
+        }
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getRemoteAddr();
+        }
+        return ip;
+    }
+}

@@ -1,0 +1,100 @@
+package com.cheyitou.common.model.po;
+
+import java.util.Date;
+
+public class Person {
+
+	private Integer id;
+	private String name;//名字
+	private String sex;//性别 0|男  1|女
+	private String mobile_phone;//联系电话
+	private String e_mail;//邮箱
+	private String pay_account;//支付账号
+	private String id_card;//身份证
+	private String drver_card;//驾驶证
+	private String address;//地址
+	private Date get_create;//创建时间
+	private Date get_modified;//修改时间
+	private String image;//头像
+	private Integer user_id;
+	public Integer getId() {
+		return id;
+	}
+	public void setId(Integer id) {
+		this.id = id;
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public String getSex() {
+		return sex;
+	}
+	public void setSex(String sex) {
+		this.sex = sex;
+	}
+	public String getMobile_phone() {
+		return mobile_phone;
+	}
+	public void setMobile_phone(String mobile_phone) {
+		this.mobile_phone = mobile_phone;
+	}
+	public String getE_mail() {
+		return e_mail;
+	}
+	public void setE_mail(String e_mail) {
+		this.e_mail = e_mail;
+	}
+	public String getPay_account() {
+		return pay_account;
+	}
+	public void setPay_account(String pay_account) {
+		this.pay_account = pay_account;
+	}
+	public String getId_card() {
+		return id_card;
+	}
+	public void setId_card(String id_card) {
+		this.id_card = id_card;
+	}
+	public String getDrver_card() {
+		return drver_card;
+	}
+	public void setDrver_card(String drver_card) {
+		this.drver_card = drver_card;
+	}
+	public String getAddress() {
+		return address;
+	}
+	public void setAddress(String address) {
+		this.address = address;
+	}
+	public Date getGet_create() {
+		return get_create;
+	}
+	public void setGet_create(Date get_create) {
+		this.get_create = get_create;
+	}
+	public String getImage() {
+		return image;
+	}
+	public void setImages(String image) {
+		this.image = image;
+	}
+	public Integer getUser_id() {
+		return user_id;
+	}
+	public void setUser_id(Integer user_id) {
+		this.user_id = user_id;
+	}
+	public Date getGet_modified() {
+		return get_modified;
+	}
+	public void setGet_modified(Date get_modified) {
+		this.get_modified = get_modified;
+	}
+
+	
+}

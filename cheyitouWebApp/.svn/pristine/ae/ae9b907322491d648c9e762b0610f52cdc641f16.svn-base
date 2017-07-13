@@ -1,0 +1,90 @@
+package com.cheyitou.common.service.impl;
+
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.cheyitou.common.dao.mapper.DepositMapper;
+import com.cheyitou.common.dao.mapper.MyAccountMapper;
+import com.cheyitou.common.exception.BaseException;
+import com.cheyitou.common.model.po.Deposit;
+import com.cheyitou.common.model.po.MyAccount;
+import com.cheyitou.common.po.vo.Result;
+import com.cheyitou.common.service.DepositService;
+import com.cheyitou.common.util.StringUtil;
+
+@Service
+public class DepositServiceImpl implements DepositService {
+	@Autowired
+	private DepositMapper depositMapper;
+	@Autowired
+	private MyAccountMapper myAccountMapper;
+	
+	/**
+	 * 提现记录
+	 */
+	public List<Map<String,Object>> toRecord(Integer userId) throws BaseException{
+		List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
+		if(userId==null || userId < 0 ){
+		  throw new BaseException("100003","用户不存在!");
+		}
+		Deposit des = new Deposit();
+		des.setUserId(userId);
+		des.setStatus("1");
+		Deposit dp = depositMapper.queryByUserId(des);
+		Map<String,Object> map = new HashMap<String,Object>();
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		String days = sdf.format(dp.getGetTime());
+		map.put("时间", days);
+		map.put("金额", dp.getGetMoney());
+		map.put("账户", dp.getGetAccount());
+		map.put("状态", dp.getStatus());
+		list.add(map);
+		return list;
+	}
+
+	/**
+	 * 提现数据
+	 */
+	public void toData(BigDecimal money,String account,Integer userId) throws BaseException{
+		if(money == null){
+			throw new BaseException("110001", "提现金额不能为空");
+		}
+		if(StringUtil.isEmpty(account)){
+			throw new BaseException("110002", "提现账户不能为空");
+		}
+		Deposit dp = new Deposit();
+		dp.setGetMoney(money);
+		dp.setGetAccount(account);
+		dp.setUserId(userId);
+		dp.setGetTime(new Date());
+		dp.setStatus("1");//提现中状态
+		Deposit dps = depositMapper.queryByUserId(dp);
+		if(dps == null){
+			//把提现时间写入我的账户中
+			int num = depositMapper.create(dp);
+			MyAccount my = new MyAccount();
+			my.setGetTime(dp.getGetTime());
+			my.setUserId(userId);
+			myAccountMapper.updateToTime(my);
+		}else{
+			int num = depositMapper.updateById(dp);
+			//把提现时间写入我的账户中
+			MyAccount my = new MyAccount();
+			my.setGetTime(dp.getGetTime());
+			my.setUserId(userId);
+			myAccountMapper.updateToTime(my);
+			if(num < 0){
+				throw new BaseException("110001","提现数据有误!");
+			}
+		}
+	}
+
+}

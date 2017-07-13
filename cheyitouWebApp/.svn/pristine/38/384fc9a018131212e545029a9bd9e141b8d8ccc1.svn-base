@@ -1,0 +1,86 @@
+package com.cheyitou.common.model.po;
+
+import java.util.Date;
+
+public class Reservation {
+
+	private Integer id;
+	private Date go_time;//前往时间
+	private Date order_time;//预约时间
+	private String address;//预约地址
+	private String car_type;//预约车型
+	private String car_advert;//车贴广告位置
+	private Integer user_id;
+	private String status;//状态  1|审核  2|提交成功
+	private String is_reservation; // 是否开启预约 0|关闭 1|开启
+	private Date getCreate;//创建时间
+    private Date getModified;//修改时间
+	
+	public Integer getId() {
+		return id;
+	}
+	public void setId(Integer id) {
+		this.id = id;
+	}
+	public Date getGo_time() {
+		return go_time;
+	}
+	public void setGo_time(Date go_time) {
+		this.go_time = go_time;
+	}
+	public Date getOrder_time() {
+		return order_time;
+	}
+	public void setOrder_time(Date order_time) {
+		this.order_time = order_time;
+	}
+	public String getAddress() {
+		return address;
+	}
+	public void setAddress(String address) {
+		this.address = address;
+	}
+	public String getCar_type() {
+		return car_type;
+	}
+	public void setCar_type(String car_type) {
+		this.car_type = car_type;
+	}
+	public String getCar_advert() {
+		return car_advert;
+	}
+	public void setCar_advert(String car_advert) {
+		this.car_advert = car_advert;
+	}
+	public Integer getUser_id() {
+		return user_id;
+	}
+	public void setUser_id(Integer user_id) {
+		this.user_id = user_id;
+	}
+	public String getStatus() {
+		return status;
+	}
+	public void setStatus(String status) {
+		this.status = status;
+	}
+	public String getIs_reservation() {
+		return is_reservation;
+	}
+	public void setIs_reservation(String is_reservation) {
+		this.is_reservation = is_reservation;
+	}
+	public Date getGetCreate() {
+		return getCreate;
+	}
+	public void setGetCreate(Date getCreate) {
+		this.getCreate = getCreate;
+	}
+	public Date getGetModified() {
+		return getModified;
+	}
+	public void setGetModified(Date getModified) {
+		this.getModified = getModified;
+	}
+
+}

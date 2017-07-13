@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cheyitou.common.dao.mapper.SmsMapper">
+
+  <resultMap id="RM_Sms" type="com.cheyitou.common.model.po.Sms">
+    
+    <id column="ID" jdbcType="INTEGER" property="id" />
+    <result column="PHONE" jdbcType="VARCHAR" property="phone" />
+    <result column="CONTENT" jdbcType="VARCHAR" property="content" />
+    <result column="REQUEST_TIME" jdbcType="TIMESTAMP" property="request_time" />
+    <result column="RES_XML" jdbcType="VARCHAR" property="res_xml" />
+    <result column="POST_DATA" jdbcType="VARCHAR" property="post_data" />
+    <result column="GET_CREATE" property="getCreate" jdbcType="TIMESTAMP" />
+    <result column="GET_MODIFIED" property="getModified" jdbcType="TIMESTAMP" />
+  </resultMap>
+  
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="RM_Sms">
+    select 
+    ID, PHONE, CONTENT, REQUEST_TIME, RES_XML, POST_DATA，GET_CREATE，GET_MODIFIED
+    from c_sms
+    where ID = #{id}
+  </select>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+   
+    delete from c_sms
+    where ID = #{id}
+  </delete>
+  
+  <insert id="create" parameterType="com.cheyitou.common.model.po.Sms">
+    insert into c_sms (
+    ID, 
+    PHONE, 
+    CONTENT, 
+    REQUEST_TIME, 
+    RES_XML, 
+    POST_DATA,
+    GET_CREATE,
+    GET_MODIFIED
+    )values (
+    #{id}, 
+    #{phone}, 
+    #{content}, 
+     now(),
+    #{res_xml}, 
+    #{post_data},
+    now(),
+    now()
+    )
+  </insert>
+  
+  
+  <update id="updateByPrimaryKey" parameterType="com.cheyitou.common.model.po.Sms">
+    
+    update c_sms
+    set PHONE = #{phone},
+      CONTENT = #{content},
+      REQUEST_TIME = #{request_time},
+      RES_XML = #{res_xml},
+      POST_DATA = #{post_data}
+    where ID = #{id}
+  </update>
+</mapper>

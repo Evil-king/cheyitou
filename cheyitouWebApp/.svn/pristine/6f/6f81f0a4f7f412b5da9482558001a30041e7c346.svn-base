@@ -1,0 +1,126 @@
+package com.cheyitou.common.helper;
+
+import java.util.Date;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.codec.digest.DigestUtils;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
+import com.cheyitou.common.enums.UserSessionEnums;
+import com.cheyitou.common.util.MD5;
+import com.cheyitou.common.util.SHA256;
+import com.cheyitou.common.util.SessionIdCache;
+import com.cheyitou.common.util.SessionManager;
+import com.cheyitou.common.util.StringUtil;
+
+
+public class UserHelper {
+	/**
+	 * 获取会员ID
+	 * 
+	 * @return
+	 */
+	public static Integer getId() {
+
+		String memberId = getManager().getValue(UserSessionEnums._MALL_FORM.getName(),
+				UserSessionEnums._MALL_FORM_ID.getName(), true);
+		if (StringUtil.isEmpty(memberId) || "null".equalsIgnoreCase(memberId)) {
+			return 0;
+		}
+		return StringUtil.isEmpty(memberId) ? 0 : Integer.parseInt(memberId);
+	}
+
+	/**
+	 * 获取短信code
+	 */
+	public static String getCode() {
+		return getManager().getValue(UserSessionEnums._MALL_FORM.getName(),
+				UserSessionEnums._MALL_FORM_CODE.getName(), true);
+	}
+
+	/**
+	 * 获取会员手机号码
+	 * 
+	 * @return
+	 */
+	public static String getPhone() {
+
+		return getManager().getValue(UserSessionEnums._MALL_FORM.getName(),
+				UserSessionEnums._MALL_FORM_PHONE.getName(), true);
+	}
+
+	 /**
+     * @方法名： setMemberId
+     * @功能描述：设置会员ID
+     * @param request
+     * @param response
+     * @param memberId void
+     * @创建时间：2016年5月19日 下午3:59:22
+     */
+    public static void setMemberId(HttpServletRequest request, HttpServletResponse response, Integer userId) {
+        String requestType = request.getHeader("X-Requested-With");
+        boolean isAjax = "XMLHttpRequest".equals(requestType);
+        if (isAjax) {
+            // PC端存入cookie
+        } else {
+            // 移动端存入Header
+            String sid = DigestUtils.md5Hex(userId.toString());
+            SessionIdCache.setValue(sid, userId);
+            response.addHeader("sid", sid);
+        }
+    }
+	
+	
+	/**
+	 * 获取会员密码
+	 */
+	public static String getPasswd(){
+		
+		return getManager().getValue(UserSessionEnums._MALL_FORM.getName(), UserSessionEnums._MALL_FORM_PASSWD.getName(),true);
+	}
+	
+	
+	/** 
+	 * 加密密码明文
+	 * 
+	 * @param passwd
+	 * @return
+	 */
+	public static String getEntryPasswd(String passwd) {
+		passwd = SHA256.encrypt(passwd);
+
+		return MD5.encryptMD5(passwd);
+	}
+	
+	/**
+	 * 写入更新日期
+	 */
+	public static void writeLastTime(){
+		SessionManager manager = new SessionManager(getRequest());
+		manager.setValue(UserSessionEnums._MALL_FORM_LAST_TIME.getName(), UserSessionEnums._MALL_FORM_LAST_TIME.getName(), String.valueOf(new Date().getTime()),true);
+		manager.save(getRequest(), UserSessionEnums._MALL_FORM_LAST_TIME.getName(),true);
+	}
+	
+	public static HttpServletRequest getRequest() {
+
+		return ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+	}
+
+	public static HttpServletResponse getResponse() {
+
+		return ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getResponse();
+	}
+
+	private static SessionManager getManager() {
+
+		return new SessionManager(getRequest());
+	}
+
+	public static void cleanAll() {
+		getRequest().getSession().invalidate();
+	}
+
+}

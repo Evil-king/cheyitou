@@ -1,0 +1,33 @@
+package cheyitouWebApp;
+
+import java.util.regex.Pattern;
+
+import com.cheyitou.common.exception.BaseException;
+import com.cheyitou.common.util.StringUtil;
+
+public class Test {
+	public static void main(String[] args) {
+//		String arr[] = {"2","3","4"};
+//		String str ="";
+//		StringBuffer sb = new StringBuffer();
+//		for(int i=0;i<arr.length;i++){
+//			str = "cao";
+//			sb.append(str).append(",");
+//			System.out.println(str);
+//		}
+		Test tt = new Test();
+		tt.Validate("769657957@qq.com");
+		System.out.println(tt.toString());
+
+	}
+	
+
+	private boolean Validate(String mail) throws BaseException{
+		 if (StringUtil.isEmpty(mail)) {
+	            return false;
+	        }
+	        String regex_mobile = "^([a-z0-9A-Z]+[-|\\.]?)+[a-z0-9A-Z]@([a-z0-9A-Z]+(-[a-z0-9A-Z]+)?\\.)+[a-zA-Z]{2,}$";
+	        boolean flag = Pattern.matches(regex_mobile, mail);
+	        return flag;
+	}
+}

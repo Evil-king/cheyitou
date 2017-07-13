@@ -1,0 +1,20 @@
+package com.cheyitou.common.service;
+
+import com.cheyitou.common.exception.BaseException;
+import com.cheyitou.common.po.vo.ResultVO;
+
+public interface MyAccountService {
+
+	/**
+	 * 我的账号数据
+	 * @return
+	 */
+	ResultVO toData(Integer userId) throws BaseException;
+	
+	/**
+	 * 账号明细
+	 * @return
+	 */
+	ResultVO toDetail(Integer userId) throws BaseException;
+
+}

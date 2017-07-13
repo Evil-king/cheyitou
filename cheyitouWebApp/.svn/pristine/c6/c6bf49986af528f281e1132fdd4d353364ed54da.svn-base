@@ -1,0 +1,87 @@
+package com.cheyitou.common.service.impl;
+
+import java.util.regex.Pattern;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.cheyitou.common.dao.mapper.PersonMapper;
+import com.cheyitou.common.exception.BaseException;
+import com.cheyitou.common.model.po.Person;
+import com.cheyitou.common.service.PersonService;
+import com.cheyitou.common.util.StringUtil;
+@Service
+public class PersonServiceImpl implements PersonService {
+	@Autowired
+	private PersonMapper personMapper;
+	
+	/**
+	 * 设置邮箱 支付宝账号 头像
+	 */
+	public void setting(Person person) throws BaseException{
+		if(StringUtil.isEmpty(person.getMail())){
+			throw new BaseException("300001","邮箱不能为空");
+		}
+		if(Validate(person.getMail()) ){
+			throw new BaseException("300007","邮箱格式不正确");
+		}
+		if(StringUtil.isEmpty(person.getImage())){
+			throw new BaseException("300002","头像不能为空");
+		}
+		if(StringUtil.isEmpty(person.getPayAccount())){
+			throw new BaseException("300003","支付账户不能为空");
+		}
+	Person pp = personMapper.queryByUserId(person.getUserId());
+		Person per = new Person();
+		per.setMail(person.getMail());
+		per.setImage(person.getImage());
+		per.setPayAccount(person.getPayAccount());
+		per.setUserId(person.getUserId());
+		int num ;
+		if(pp == null){
+			num = personMapper.create(per);
+			if(num < 0){
+				throw new BaseException("300004","创建数据失败!");
+			}
+		}else{
+			num = personMapper.update(per);
+			if(num < 0){
+				throw new BaseException("300005","更新数据失败!");
+			}
+		}
+		
+	}
+
+	/**
+	 * 完善个人信息
+	 */
+	public void toPerson(Person person) throws BaseException{
+		Person pp = personMapper.queryByUserId(person.getUserId());
+		if(pp==null){
+			int num = personMapper.create(person);
+			if(num < 0){
+				throw new BaseException("300006","创建数据失败!");
+			}
+		}else{
+			int num = personMapper.update(person);
+			if(num < 0){
+				throw new BaseException("300005","更新数据失败!");
+			}
+		}
+		
+	}
+	
+	/**
+	 * 校验注册信息是否正确
+	 * @param merchants
+	 * @throws Exception 
+	 */
+	private boolean Validate(String mail) throws BaseException{
+		 if (StringUtil.isEmpty(mail)) {
+	            return false;
+	        }
+	        String regex_mobile = "^([a-z0-9A-Z]+[-|\\.]?)+[a-z0-9A-Z]@([a-z0-9A-Z]+(-[a-z0-9A-Z]+)?\\.)+[a-zA-Z]{2,}$";
+	        return Pattern.matches(regex_mobile, mail);
+	}
+
+}

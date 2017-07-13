@@ -1,0 +1,62 @@
+package com.cheyitou.common.service.impl;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.cheyitou.common.dao.mapper.OrderMapper;
+import com.cheyitou.common.exception.BaseException;
+import com.cheyitou.common.model.po.Order;
+import com.cheyitou.common.service.OrderService;
+import com.cheyitou.common.util.StringUtil;
+
+@Service
+public class OrderServiceImpl implements OrderService {
+	@Autowired
+	private OrderMapper orderMapper;
+
+
+	/**
+	 * 解除订单
+	 */
+	public String toOrder(String orderNum,Integer userId) throws BaseException{
+		Order order = orderMapper.queryByNum(orderNum);
+		if(order.getOrder_num()==null || order.getOrder_num() ==""){
+		     throw new BaseException("200002","订单号不存在!");
+		  } 
+		Order or = new Order();
+		or.setOrder_num(orderNum);
+		or.setUser_id(userId);
+		or.setStatus("2");//解除订单
+		int num =  orderMapper.updateToOrderNum(or);
+		return or.getOrder_num();
+	}
+
+	/**
+	 * 提交订单
+	 */
+	public void toFinish(String front_image, String back_image, String side_image,Integer userId) throws BaseException{
+		if(StringUtil.isEmpty(front_image)){
+			throw new BaseException("200004","资质正面不能为空");
+		}
+		if(StringUtil.isEmpty(back_image)){
+			throw new BaseException("200005","资质背面不能为空");
+		}
+		if(StringUtil.isEmpty(back_image)){
+			throw new BaseException("200006","资质侧面不能为空");
+		}
+		Order order = new Order();
+		order.setFront_img(front_image);
+		order.setBack_img(back_image);
+		order.setSide_img(side_image);
+		order.setUser_id(userId);
+		order.setStatus("0");//订单进行中
+		int num = orderMapper.update(order);
+		if(num < 0 ){
+			throw new BaseException("20007","订单更新数据失败");
+		}
+		
+	}
+
+
+
+}

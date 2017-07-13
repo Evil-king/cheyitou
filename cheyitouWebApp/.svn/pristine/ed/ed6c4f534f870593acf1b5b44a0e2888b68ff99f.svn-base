@@ -1,0 +1,178 @@
+package com.cheyitou.common.service.impl;
+
+import java.util.regex.Pattern;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang.RandomStringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.cheyitou.common.dao.mapper.UserMapper;
+import com.cheyitou.common.enums.UserCookieEnums;
+import com.cheyitou.common.enums.UserSessionEnums;
+import com.cheyitou.common.exception.BaseException;
+import com.cheyitou.common.helper.UserHelper;
+import com.cheyitou.common.model.po.User;
+import com.cheyitou.common.service.SmsService;
+import com.cheyitou.common.service.UserService;
+import com.cheyitou.common.util.CookieManager;
+import com.cheyitou.common.util.SessionManager;
+import com.cheyitou.common.util.StringUtil;
+
+@Service
+public class UserServiceImpl implements UserService {
+	@Autowired
+	private UserMapper userMapper;
+	@Autowired
+	private SmsService smsService;
+
+
+	/**
+	 * 登录
+	 */
+	public User login(String phone, String passwd,HttpServletRequest request, HttpServletResponse response) {
+		boolean flag = Pattern.matches("^((13[0-9])|(15[^4,\\D])|(18[01236789]))\\d{8}$", phone);
+		if(!flag){
+			throw new BaseException("手机格式不正确");
+		}
+		User us = new User();
+		us.setPhone(phone);
+		us.setPasswd(UserHelper.getEntryPasswd(passwd));//加密密码 ca1250d105a5689371c58c7d19d2a326
+		
+		User user = userMapper.login(us);
+		if(user == null){
+			throw new BaseException("对象为空!");
+		}
+			user.setPasswd(us.getPasswd());
+			userMapper.updateByPasswd(user);
+			writeUserSession(user, request, response);
+			UserHelper.writeLastTime();
+			userMapper.updateGmLogin();
+		return user;
+	}
+
+	/**
+	 * 注册
+	 */
+	public User register(String phone, String passwd, String code, HttpServletRequest request,
+			HttpServletResponse response) {
+		//检验手机号
+		if (!validate(phone)) {
+			throw new BaseException("非法手机号码！");
+        }
+		User user = new User();
+		user.setPasswd(UserHelper.getEntryPasswd(passwd));
+		user.setPhone(phone);
+		User us = userMapper.findExits(user);
+		if(us != null){
+			throw new BaseException("账号已注册！");
+		}
+		if (StringUtil.isEmpty(code)) {
+		    throw new BaseException("短信验证码不能为空!");
+		}
+		//校验短信码
+		if(!code.equals(UserHelper.getCode())){
+			throw new BaseException("验证码不匹配");
+		}
+		//新增用户信息
+		int uu = userMapper.create(user);
+		CookieManager manager = new CookieManager(request);
+		manager.cleanAll(response, UserCookieEnums._MALL_FORM.getName(), true);
+		manager.cleanAll(response, UserCookieEnums._MALL_FORM_PASSWD.getName(), true);
+		manager.cleanAll(response, UserCookieEnums._MALL_FORM_PHONE.getName(), true);
+		
+		//写入账号cookie信息
+		writeUserSession(user, request, response);
+		//写入当前日期cookie信息
+		UserHelper.writeLastTime();
+		
+		return user;
+	}
+
+	/**
+	 * 忘记密码
+	 */
+	public void forget(String phone, String code, HttpServletRequest request, HttpServletResponse response) {
+		if(!validate(phone)){
+			throw new BaseException("非法手机号码！");
+		}
+		//校验短信码
+		if(!code.equals(UserHelper.getCode())){
+		  throw new BaseException("验证码不匹配");
+		}
+		//已短信的形式发送新密码到用户手机上
+		newPasswd(phone, request, response);
+	}
+
+	/**
+	 * 修改密码
+	 */
+	public void savePasswd(String phone, String passwd, String oldPasswd,HttpServletRequest request,HttpServletResponse response) {
+		User user = new User();	
+		user.setPhone(UserHelper.getPhone());
+		user.setId(UserHelper.getId());//MemberHelper.getId()
+		if(user.getId() < 0){
+			throw new BaseException("用户不存在!");
+		}
+		String entryOldPasswd = UserHelper.getEntryPasswd(oldPasswd);//旧密码
+		String cookPasswd = UserHelper.getPasswd();//cookie中存的密码
+		if(!entryOldPasswd.equals(cookPasswd)){
+			throw new BaseException("旧密码不存在,请重试!");
+		}
+		String entryNewPasswd = UserHelper.getEntryPasswd(passwd);
+		
+		user.setPasswd(entryNewPasswd);
+		boolean flag = userMapper.savePasswd(user);
+		if(!flag){
+			throw new BaseException("新密码更新失败！");
+		}
+	}
+
+	/**
+	 * 生成新密码
+	 */
+	public void newPasswd(String phone, HttpServletRequest request, HttpServletResponse response) {
+		String newPasswd = RandomStringUtils.random(8, "1234567890qwertyuiopasdfghjklzxcvbnm");
+		
+		SessionManager manager = new SessionManager(request);
+		manager.setValue(UserSessionEnums._MALL_FORM.getName(), UserSessionEnums._MALL_FORM_PASSWD.getName(), String.valueOf(newPasswd), true);
+		manager.save(request, UserSessionEnums._MALL_FORM.getName(), true);
+		
+		User user = new User();
+		user.setPasswd(UserHelper.getEntryPasswd(newPasswd));
+		user.setPhone(phone);
+		user.setId(UserHelper.getId());
+		int num = userMapper.updateByPasswd(user);
+		smsService.sendSms(phone, String.format(SmsServiceImpl.Template_passwd, newPasswd));
+	}
+	
+	/**
+	 * 写入会员账号信息Session
+	 * @param member
+	 * @param request
+	 * @param response
+	 */
+	private void writeUserSession(User user,HttpServletRequest request,HttpServletResponse response){
+		SessionManager manager = new SessionManager(request);
+		manager.setValue(UserSessionEnums._MALL_FORM.getName(), UserSessionEnums._MALL_FORM_ID.getName(), String.valueOf(user.getId()), true);
+		manager.setValue(UserSessionEnums._MALL_FORM.getName(), UserSessionEnums._MALL_FORM_PHONE.getName(), user.getPhone(), true);
+		manager.setValue(UserSessionEnums._MALL_FORM.getName(), UserSessionEnums._MALL_FORM_PASSWD.getName(), user.getPasswd(), true);
+		manager.save(request, UserSessionEnums._MALL_FORM.getName(), true);
+	}
+	
+	/**
+	 * 校验注册信息是否正确
+	 * @param merchants
+	 * @throws Exception 
+	 */
+	private boolean validate(String phone) throws BaseException{
+		 if (StringUtil.isEmpty(phone)) {
+	            return false;
+	        }
+	        String regex_mobile = "^1[3|4|5|7|8][0-9]{9}$";
+	        return Pattern.matches(regex_mobile, phone);
+	}
+
+}

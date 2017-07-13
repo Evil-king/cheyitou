@@ -1,0 +1,46 @@
+package com.cheyitou.common.exception;
+
+public class BaseException extends RuntimeException{
+	
+	private String code ;  //异常对应的返回码
+	private String msg;  //异常对应的描述信息
+	
+	public BaseException() {
+		super();
+	}
+	
+	
+	public BaseException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+		super(message, cause, enableSuppression, writableStackTrace);
+	}
+
+
+	public BaseException(String message, Throwable cause) {
+		super(message, cause);
+	}
+
+
+	public BaseException(Throwable cause) {
+		super(cause);
+	}
+
+
+	public BaseException(String msg) {
+		super(msg);
+		this.msg = msg;
+	}
+
+	public BaseException(String code, String msg) {
+		super();
+		this.code = code;
+		this.msg = msg;
+	}
+
+	public String getcode() {
+		return code;
+	}
+
+	public String getMsg() {
+		return msg;
+	}
+}

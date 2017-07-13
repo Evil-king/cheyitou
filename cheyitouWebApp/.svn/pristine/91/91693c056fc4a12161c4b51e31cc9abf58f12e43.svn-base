@@ -1,0 +1,80 @@
+package com.cheyitou.common.enums;
+
+
+public enum ErrorCode {
+	
+	/**
+	 * 系统
+	 */
+	SYSTEM_BUSINESS(-1,"系统繁忙"),
+	REQUEST_SUCCESS(0,"请求成功"),
+	
+	/**
+	 * 用户
+	 */
+	PHONE_OR_PWSSWD_ISNULL(100001,"手机号或者密码为空"),
+	DUANXIN_CODE(100002,"短信验证码不能为空!"),
+	USER_ISNULL(100003,"用户不存在!"),
+	OLD_PASSWD(100004,"旧密码不存在,请重试!"),
+	ACCOUNT_ISNOT_NULL(100005,"账号不能为空"),
+	PHONE_ISNOTNULL_OR(100006,"手机号码不能为空或者格式不正确！"),
+	PHONE_IS_REGISTER(100007,"手机号码已经被注册，请更换后重试！"),
+	INCORRECT_PHONEFORMT(100008,"手机格式不正确"),
+	VERIFICATION_CODE_NO_MATCH(100009,"验证码不匹配"),
+	ACCOUNT_IS_EXIST(100010,"账号已注册！"),
+	INGORE_PHONE(100011,"非法手机号"),
+	NO_DATA(000000,"没有数据!"),
+
+	/**
+	 * 订单
+	 */
+	ON_ORDER(200001,"没有订单！"),
+	ACCOUNT_ISUNLL(200003,"账户不存在！"),
+	OREDE_NUM_NULL(200004,"订单号不存在!"),
+	
+	/**
+	 * 个人信息
+	 */
+	IMG_NULL(300001,"图片不能为空!"),
+	MAIL_ACCOUNT_IMG_NULL(300002,"邮箱、支付宝账号、头像不能为空!"),
+	OBJECT_ISNULL(300002,"对象为空!"),
+	IMG_FRONT(300003,"正面图片不能为空"),
+	IMG_BACK(300004,"背面图片不能为空"),
+	IMG_SIDE(300005,"侧面面图片不能为空"),
+	
+	/**
+	 * 预约
+	 */
+	ON_RESERVATION(400001,"没有预约！"),
+	;
+	
+	
+	private int code;
+	private String msg;
+	
+	private ErrorCode(int code,String msg){
+		this.setCode(code);
+		this.setMsg(msg);
+	}
+
+
+	public void setCode(int code) {
+		this.code = code;
+	}
+	
+
+	public int getCode() {
+		return code;
+	}
+
+
+	public String getMsg() {
+		return msg;
+	}
+
+	private void setMsg(String msg) {
+		this.msg = msg;
+	}
+
+	
+}

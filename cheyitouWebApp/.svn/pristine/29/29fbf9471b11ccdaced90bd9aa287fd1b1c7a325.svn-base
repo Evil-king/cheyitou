@@ -1,0 +1,51 @@
+package com.cheyitou.common.service.impl;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.cheyitou.common.dao.mapper.MyAccountMapper;
+import com.cheyitou.common.exception.BaseException;
+import com.cheyitou.common.helper.UserHelper;
+import com.cheyitou.common.model.po.MyAccount;
+import com.cheyitou.common.po.vo.ResultVO;
+import com.cheyitou.common.service.MyAccountService;
+
+@Service
+public class MyAccountServiceImpl implements MyAccountService {
+	@Autowired
+	private MyAccountMapper myAccountMapper;
+	
+
+	/**
+	 * 我的账号数据
+	 */
+	public ResultVO toData() throws BaseException{
+		Map<String,Object> map = new HashMap<String,Object>();
+		MyAccount  my = myAccountMapper.queryByUserId(UserHelper.getId());
+		if(my == null){
+			throw new BaseException("对象为空!");
+		} 
+		map.put("numOrderOver", my.getNUM_ORDER_OVER());
+		map.put("accountAmount", my.getACCOUNT_AMOUNT());
+		map.put("getAmount", my.getGET_AMOUNT());
+		
+		return new ResultVO(map);
+	}
+
+	/**
+	 * 账号明细
+	 */
+	public ResultVO toDetail(Integer userId) throws BaseException{
+		Map<String,Object> map = new HashMap<String,Object>();
+		MyAccount my = myAccountMapper.queryByUserId(userId);
+		map.put("time",my.getGet_modified());
+		map.put("orderNum",my.getORDER_NUM());
+		map.put("source", my.getFUNDING_SOURCE());
+		return new ResultVO(map);
+	}
+
+
+}

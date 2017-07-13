@@ -1,0 +1,155 @@
+package com.cheyitou.common.controller;
+
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.cheyitou.common.dao.mapper.OrderMapper;
+import com.cheyitou.common.exception.BaseException;
+import com.cheyitou.common.model.po.Order;
+import com.cheyitou.common.model.po.Person;
+import com.cheyitou.common.po.vo.Result;
+import com.cheyitou.common.service.PersonService;
+
+
+/**
+ * @类名：FileUploadController.java
+ * @功能描述：文件上传控制层API
+ * @作者：caiwl
+ * @创建时间：2016年5月10日 下午12:00:52
+ */
+@Controller
+@RequestMapping("/upload")
+public class FileUploadController extends BaseController {
+
+    private SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+    
+    @Resource
+    private PersonService personService;
+    @Autowired
+    private OrderMapper orderMapper;
+    
+    /**
+     * @方法名： uploadShaidanPhoto
+     * @功能描述：上传多张资质图片
+     * @param file
+     * @return
+     * @throws Exception ResultVO
+     * @作者：caiwl
+     * @创建时间：2016年5月12日 上午10:55:17
+     */
+    @RequestMapping(value="/uploadQualifications", method=RequestMethod.POST)
+    @ResponseBody
+    public Result uploadQualification(HttpServletRequest request,
+            @RequestParam(value="file", required=true) MultipartFile[] file,@RequestParam(value="userId", required=true) Integer userId) throws Exception {
+    	
+    	String filePath ="";
+    	StringBuffer sb = new StringBuffer();
+    	
+    	for(MultipartFile item : file){
+    		String filename = item.getOriginalFilename();
+    		// TODO 上传文件格式过滤
+    		filePath = getFilePath("zizhi", filename);
+    		String realPath = "/root/kongzhu/service/picture/";
+//    		String realPath = "/Users/Macx/Desktop/image/";
+    		File targetFile = new File(realPath + filePath);
+    		// 目录不存在时，要手动创建目录，该代码在当天首次上传图片时会执行
+    		File directory = targetFile.getParentFile();
+    		if (!directory.exists()) {
+    			directory.mkdirs();
+    		}
+    		item.transferTo(targetFile);
+    		Order order = new Order();
+    		order.setFrontImg("zizhi"+"/"+getDirname()+"/"+item);
+    		order.setBackImg("zizhi"+"/"+getDirname()+"/"+item);
+    		order.setSideImg("zizhi"+"/"+getDirname()+"/"+item);
+    		order.setUserId(userId);
+    		order.setStatus("3");//订单进行中
+    		int num = orderMapper.update(order);
+    		if(num < 0 ){
+    			throw new BaseException("20007","订单更新数据失败");
+    		}
+    	}
+    	
+//    	for(int i = 0 ; i <file.length; i ++){
+//    		String filename = file[i].getOriginalFilename();
+//    		// TODO 上传文件格式过滤
+//    		filePath = getFilePath("zizhi", filename);
+//    		String realPath = "/root/kongzhu/service/picture/";
+////    		String realPath = "/Users/Macx/Desktop/image/";
+//    		File targetFile = new File(realPath + filePath);
+//    		// 目录不存在时，要手动创建目录，该代码在当天首次上传图片时会执行
+//    		File directory = targetFile.getParentFile();
+//    		if (!directory.exists()) {
+//    			directory.mkdirs();
+//    		}
+//    		file[i].transferTo(targetFile);
+//    		sb.append(filePath).append(",");
+//    		Order order = new Order();
+//    		order.setFrontImg("zizhi"+"/"+getDirname()+"/"+file[0].getOriginalFilename());
+//    		order.setBackImg("zizhi"+"/"+getDirname()+"/"+file[1].getOriginalFilename());
+//    		order.setSideImg("zizhi"+"/"+getDirname()+"/"+file[2].getOriginalFilename());
+//    		order.setUserId(userId);
+//    		order.setStatus("3");//订单进行中
+//    		int num = orderMapper.update(order);
+//    		if(num < 0 ){
+//    			throw new BaseException("20007","订单更新数据失败");
+//    		}
+//    	}
+        return new Result("1","订单提交成功",sb.deleteCharAt(sb.length()-1).toString());
+    }
+    
+    
+    /**
+     * @方法名： uploadMemberHeadImg
+     * @功能描述：上传会员头像
+     * @param request
+     * @param file
+     * @return
+     * @throws Exception ResultVO
+     * @作者：caiwl
+     * @创建时间：2016年5月12日 上午10:55:27
+     */
+    @RequestMapping(value="/uploadPersonHeadImg", method=RequestMethod.POST)
+    @ResponseBody
+    public Result uploadMemberHeadImg(HttpServletRequest request,
+            @RequestParam(value="file", required=true) MultipartFile file, @RequestParam(value="userId", required=true) Integer userId) throws Exception {
+        String filename = file.getOriginalFilename();
+        String filePath = getFilePath("touimg", filename);
+        String realPath = "/root/kongzhu/service/picture/";
+//        String realPath = "/Users/Macx/Desktop/image/";
+        File targetFile = new File(realPath + filePath);
+        // 目录不存在时，要手动创建目录，该代码在当天首次上传图片时会执行
+        File directory = targetFile.getParentFile();
+        if (!directory.exists()) {
+            directory.mkdirs();
+        }
+        file.transferTo(targetFile);
+        // 上传头像之后，还要修改数据库对应字段
+        Person person = personService.queryByUserId(userId);
+        person.setImage(filePath);
+        person.setUserId(userId);
+        personService.update(person);
+        return new Result("1","头像上传成功",filePath);
+    }
+    
+    private String getFilePath(String path, String filename) {
+        return path + "/" + getDirname() + "/"  + filename;
+    }
+    
+    private String getDirname() {
+        return format.format(new Date());
+    }
+    
+}

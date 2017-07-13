@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cheyitou.common.dao.mapper.DepositMapper">
+
+  <resultMap id="RM_Deposit" type="com.cheyitou.common.model.po.Deposit">
+   
+    <id column="ID" jdbcType="INTEGER" property="id" />
+    <result column="GET_TIME" jdbcType="TIMESTAMP" property="getTime" />
+    <result column="GET_ACCOUNT" jdbcType="VARCHAR" property="getAccount" />
+    <result column="STATUS" jdbcType="CHAR" property="status" />
+    <result column="GET_PHONE" jdbcType="VARCHAR" property="getPhone" />
+    <result column="GET_MONEY" jdbcType="DECIMAL" property="getMoney" />
+    <result column="USER_ID" jdbcType="INTEGER" property="userId" />
+    <result column="GET_CREATE" property="getCreate" jdbcType="TIMESTAMP" />
+    <result column="GET_MODIFIED" property="getModified" jdbcType="TIMESTAMP" />
+  </resultMap>
+
+  <select id="queryByUserId" resultMap="RM_Deposit" parameterType="com.cheyitou.common.model.po.Deposit" >
+    select 
+    ID, GET_TIME, GET_ACCOUNT, STATUS, GET_PHONE, GET_MONEY, USER_ID, GET_MODIFIED, GET_CREATE
+    from c_deposit
+    where USER_ID = #{userId}
+  </select>
+  
+  
+  <insert id="create" parameterType="com.cheyitou.common.model.po.Deposit" useGeneratedKeys="true" keyColumn="id">
+    insert into c_deposit (
+    ID, 
+    GET_TIME, 
+    GET_ACCOUNT, 
+    STATUS, 
+    GET_PHONE,
+    GET_MONEY,
+    USER_ID,
+    GET_MODIFIED,
+    GET_CREATE
+    )values (
+    #{id}, 
+    #{getTime}, 
+    #{getAccount}, 
+    #{status}, 
+    #{getPhone},
+    #{getMoney},
+    #{userId},
+    now(),
+    now()
+    )
+  </insert>
+  
+  <update id="updateById" parameterType="com.cheyitou.common.model.po.Deposit">
+    update c_deposit
+    set GET_MODIFIED = now(),GET_TIME = now()
+      <if test="getAccount !=null and getAccount != '' ">,GET_ACCOUNT = #{getAccount}</if>
+      <if test="status !=null and status !='' ">,STATUS = #{status}</if>
+      <if test="getPhone !=null and getPhone !='' ">,GET_PHONE = #{getPhone}</if>
+      <if test="getMoney !=null and getMoney !='' ">,GET_MONEY = #{getMoney}</if>
+    where USER_ID = #{userId}
+  </update>
+</mapper>

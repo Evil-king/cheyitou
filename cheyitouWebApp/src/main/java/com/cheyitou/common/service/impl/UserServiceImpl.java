@@ -1,0 +1,149 @@
+package com.cheyitou.common.service.impl;
+
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang.RandomStringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.cheyitou.common.dao.mapper.MyAccountMapper;
+import com.cheyitou.common.dao.mapper.UserMapper;
+import com.cheyitou.common.exception.BaseException;
+import com.cheyitou.common.model.po.MyAccount;
+import com.cheyitou.common.model.po.User;
+import com.cheyitou.common.service.SmsService;
+import com.cheyitou.common.service.UserService;
+import com.cheyitou.common.util.CaptchaCache;
+import com.cheyitou.common.util.StringUtil;
+
+@Service
+public class UserServiceImpl implements UserService {
+	@Autowired
+	private UserMapper userMapper;
+	@Autowired
+	private SmsService smsService;
+	@Autowired
+	private MyAccountMapper myAccountMapper;
+
+
+	/**
+	 * 登录
+	 */
+	public User login(String phone,String passwd) throws BaseException{
+		 // 检测手机号码
+        if (!StringUtil.isHandset(phone)) {
+            throw new BaseException("100011","非法手机号码！");
+        }
+		User us = new User();
+		us.setPhone(phone);
+		us.setPasswd(DigestUtils.md5Hex(passwd));
+		User user = userMapper.login(us);
+		if(user == null){
+			throw new BaseException("100014","手机号码或密码错误");
+		}
+			user.setPasswd(us.getPasswd());
+			userMapper.updateByPasswd(user);
+		return user;
+	}
+
+	/**
+	 * 注册
+	 */
+	@Transactional
+	public User register(String phone, String passwd, String code) throws BaseException {
+		//检验手机号
+		if (!StringUtil.isHandset(phone)) {
+			throw new BaseException("100011","非法手机号码！");
+        }
+		User user = new User();
+		user.setPasswd(DigestUtils.md5Hex(passwd));
+		user.setPhone(phone);
+		User us = userMapper.findExits(user);
+		if(us != null){
+			throw new BaseException("100010","账号已注册！");
+		}
+		if (StringUtil.isEmpty(code)) {
+		    throw new BaseException("100002","短信验证码不能为空!");
+		}
+		 // 校验验证码
+        String mobileCode = CaptchaCache.getValue(phone);
+        if (!StringUtil.isEmpty(mobileCode)) {
+            String[] values = StringUtil.split(mobileCode, "|");
+            String captchaCache = values[0];
+            if (!code.equals(captchaCache)) {
+                throw new BaseException("100009","验证码不匹配！");
+            }
+		//新增用户信息
+		int uu = userMapper.create(user);
+		User u = userMapper.queryByPhone(phone);
+		MyAccount my = new MyAccount();//注册成功就创建好我的账户
+		my.setUserId(u.getId());
+		int myAccount = myAccountMapper.create(my);
+			if(myAccount < 0){
+				throw new BaseException("120001","创建我的账户失败");
+			}
+			if(uu < 0){
+				throw new BaseException("100012","新增用户失败");
+			}
+        }
+        return user;
+	}
+
+	/**
+	 * 忘记密码
+	 */
+	public void forget(String phone, String code, HttpServletRequest request, HttpServletResponse response)throws BaseException {
+		if(!StringUtil.isHandset(phone)){
+			throw new BaseException("100011","非法手机号码！");
+		}
+		 // 校验验证码
+        String mobileCode = CaptchaCache.getValue(phone);
+        if (!StringUtil.isEmpty(mobileCode)) {
+            String[] values = StringUtil.split(mobileCode, "|");
+            String captchaCache = values[0];
+            if (!code.equals(captchaCache)) {
+                throw new BaseException("100009","验证码不匹配！");
+            }
+        }
+        //已短信的形式发送新密码到用户手机上
+        newPasswd(phone,request);
+	}
+
+	/**
+	 * 修改密码
+	 */
+	public void savePasswd(String phone, String newPasswd, String oldPasswd)throws BaseException {
+		User user = userMapper.queryByPhone(phone);
+		if(StringUtil.isEmpty(user.getPhone())){
+			throw new BaseException("100003","该手机号不存在");
+		}
+		String entryOldPasswd = DigestUtils.md5Hex(oldPasswd);//旧密码
+		if(!entryOldPasswd.equals(user.getPasswd())){
+			throw new BaseException("100004","旧密码不存在,请重试!");
+		}
+		user.setPasswd(DigestUtils.md5Hex(newPasswd));
+		boolean flag = userMapper.savePasswd(user);
+		if(!flag){
+			throw new BaseException("100013","更新密码失败！");
+		}
+	}
+
+	/**
+	 * 生成新密码
+	 */
+	public void newPasswd(String phone,HttpServletRequest request) throws BaseException{
+		String newPasswd = RandomStringUtils.random(8, "1234567890qwertyuiopasdfghjklzxcvbnm");
+		User user = userMapper.queryByPhone(phone);
+		user.setPasswd(DigestUtils.md5Hex(newPasswd));
+		int num = userMapper.updateByPasswd(user);
+		if(num < 0){
+			throw new BaseException("100013","更新密码失败");
+		}
+		smsService.sendSms(phone, String.format(SmsServiceImpl.Template_passwd, newPasswd));
+	}
+	
+}

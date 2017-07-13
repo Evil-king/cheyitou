@@ -1,0 +1,23 @@
+package com.cheyitou.common.dao.mapper;
+
+import org.apache.ibatis.annotations.Param;
+
+import com.cheyitou.common.model.po.User;
+public interface UserMapper {
+	User query(User user);
+
+	User queryByPhone(@Param("phone") String phone);
+
+	int updateGmLogin();
+
+	User findExits(User uu);
+
+	int create(User user);
+
+	boolean savePasswd(User user);
+
+	int updateByPasswd(User user);
+
+	User login(User us);
+
+}

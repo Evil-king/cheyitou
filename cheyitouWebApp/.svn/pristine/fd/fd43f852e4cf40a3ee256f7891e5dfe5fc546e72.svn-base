@@ -1,0 +1,56 @@
+package com.cheyitou.common.service.impl;
+
+import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.cheyitou.common.dao.mapper.DepositMapper;
+import com.cheyitou.common.exception.BaseException;
+import com.cheyitou.common.model.po.Deposit;
+import com.cheyitou.common.po.vo.ResultVO;
+import com.cheyitou.common.service.DepositService;
+
+@Service
+public class DepositServiceImpl implements DepositService {
+	@Autowired
+	private DepositMapper depositMapper;
+	
+	/**
+	 * 提现记录
+	 */
+	public ResultVO toRecord(Integer userId) throws BaseException{
+		if(userId==null || userId < 0 ){
+		throw new BaseException(100003,"用户不存在!");
+		}
+		Deposit des = new Deposit();
+		des.setUSER_ID(userId);
+		des.setSTATUS("1");
+		Deposit dp = depositMapper.queryBYUSerId(des);
+		Map<String,Object> map = new HashMap<String,Object>();
+		map.put("time", dp.getGET_TIME());
+		map.put("money", dp.getGET_MONEY());
+		//map.put("pyaccount", dp.getGET_ACCOUNT());
+		map.put("phone", dp.getGET_PHONE());
+		map.put("status", dp.getSTATUS());
+		return new ResultVO(map);
+	}
+
+	/**
+	 * 提现数据
+	 */
+	public void toData(BigDecimal money,String account,Integer userId) throws BaseException{
+		Deposit dp = new Deposit();
+		dp.setGET_MONEY(money);
+		dp.setGET_ACCOUNT(account);
+		dp.setUSER_ID(userId);
+		int num = depositMapper.updateById(dp);
+		if(num < 0){
+			throw new BaseException(110001,"提现数据有误!");
+		}
+		
+	}
+
+}

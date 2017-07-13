@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cheyitou.common.dao.mapper.CarInfoMapper">
+  <resultMap id="RM_CarInfo" type="com.cheyitou.common.model.po.CarInfo">
+   
+    <id column="ID" jdbcType="INTEGER" property="id" />
+    <result column="PLATE_NUMBER" jdbcType="VARCHAR" property="plateNumber" />
+    <result column="VEHICLE_BRAND" jdbcType="VARCHAR" property="vehicleBrand" />
+    <result column="DRIVING_LICENSE" jdbcType="VARCHAR" property="drivingLicense" />
+    <result column="CERTIFICATE" jdbcType="VARCHAR" property="certificate" />
+    <result column="GO_TIME" jdbcType="TIMESTAMP" property="goTime" />
+    <result column="INSPECTION_NUMBER" jdbcType="VARCHAR" property="inspectionNumber" />
+    <result column="CAR_TYPE" jdbcType="CHAR" property="carType" />
+    <result column="USER_ID" jdbcType="INTEGER" property="userId" />
+    <result column="RES_ID" jdbcType="INTEGER" property="resId" />
+    <result column="GET_CREATE" property="getCreate" jdbcType="TIMESTAMP" />
+    <result column="GET_MODIFIED" property="getModified" jdbcType="TIMESTAMP" />
+  </resultMap>
+  
+  <select id="query" parameterType="java.lang.Integer" resultMap="RM_CarInfo">
+    
+    select 
+    ID, PLATE_NUMBER, VEHICLE_BRAND, DRIVING_LICENSE, CERTIFICATE, GO_TIME, INSPECTION_NUMBER, GET_CREATE,GET_MODIFIED,
+    CAR_TYPE,USER_ID,RES_ID
+    from c_car_info
+    where USER_ID = #{userId}
+  </select>
+  
+  <select id="queryByUserId" parameterType="java.lang.Integer" resultMap="RM_CarInfo">
+    
+    select 
+    ID, PLATE_NUMBER, VEHICLE_BRAND, DRIVING_LICENSE, CERTIFICATE, GO_TIME, INSPECTION_NUMBER, GET_CREATE,GET_MODIFIED,
+    CAR_TYPE,USER_ID,RES_ID
+    from c_car_info
+    where USER_ID = #{userId}
+  </select>
+  
+  
+  <insert id="create" parameterType="com.cheyitou.common.model.po.CarInfo">
+    insert into c_car_info (
+      ID, 
+      PLATE_NUMBER, 
+      VEHICLE_BRAND, 
+      DRIVING_LICENSE, 
+      CERTIFICATE, 
+      GO_TIME, 
+      INSPECTION_NUMBER, 
+      CAR_TYPE,
+      USER_ID,
+      RES_ID,
+      GET_CREATE,
+      GET_MODIFIED
+      )values (
+      #{id}, 
+      #{plateNumber}, 
+      #{vehicleBrand}, 
+      #{drivingLicense}, 
+      #{certificate}, 
+      #{goTime}, 
+      #{inspectionNumber}, 
+      #{carType},
+      #{userId},
+      #{resId},
+      now(),
+      now()
+      )
+  </insert>
+  
+  
+  <update id="update" parameterType="com.cheyitou.common.model.po.CarInfo">
+    update c_car_info
+    set GET_MODIFIED =now(),GO_TIME = now()
+    <if test="plateNumber !=null and plateNumber !='' ">,PLATE_NUMBER = #{plateNumber}</if>
+      <if test="vehicleBrand !=null and vehicleBrand !='' ">,VEHICLE_BRAND = #{vehicleBrand}</if>
+      <if test="drivingLicense !=null and drivingLicense !='' ">,DRIVING_LICENSE = #{drivingLicense}</if>
+      <if test="certificate !=null and certificate !='' ">,CERTIFICATE = #{certificate}</if>
+      <if test="inspectionNumber !=null and inspectionNumber !='' ">,INSPECTION_NUMBER = #{inspectionNumber}</if>
+      <if test="carType !=null and carType !='' ">,CAR_TYPE = #{carType}</if>
+      <if test="resId !=null and resId >0 ">,RES_ID = #{resId}</if>
+    where USER_ID = #{userId}
+  </update>
+</mapper>

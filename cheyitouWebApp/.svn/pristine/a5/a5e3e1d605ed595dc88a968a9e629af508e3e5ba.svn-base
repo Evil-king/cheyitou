@@ -1,0 +1,24 @@
+package com.cheyitou.common.service;
+
+import com.cheyitou.common.model.po.Person;
+
+public interface PersonService {
+	
+	/**
+	 * 设置邮箱 支付宝账号 头像
+	 * @param mail
+	 * @param image
+	 * @param payAccount
+	 */
+	void setting(String mail, String image, String payAccount);
+	
+	/**
+	 * 完善个人信息
+	 * @param person
+	 */
+	void toPerson(Person person);
+
+	Person queryByUserId(Integer id);
+	
+
+}

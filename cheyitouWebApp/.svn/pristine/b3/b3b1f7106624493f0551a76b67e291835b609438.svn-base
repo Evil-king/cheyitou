@@ -1,0 +1,61 @@
+package com.cheyitou.common.service.impl;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.cheyitou.common.dao.mapper.CarInfoMapper;
+import com.cheyitou.common.dao.mapper.ReservationMapper;
+import com.cheyitou.common.exception.BaseException;
+import com.cheyitou.common.model.po.CarInfo;
+import com.cheyitou.common.model.po.Reservation;
+import com.cheyitou.common.service.CarInfoService;
+@Service
+public class CarInfoServiceImpl implements CarInfoService {
+	@Autowired
+	private CarInfoMapper carInfoMapper;
+	@Autowired
+	private ReservationMapper reservationMapper;
+
+	@Override
+	public CarInfo queryByUserId(Integer userId) {
+		CarInfo car = new CarInfo();
+		car.setUser_id(userId);
+		return carInfoMapper.query(car);
+	}
+
+	@Transactional
+	public int create(CarInfo carInfo) {
+		carInfo.setUser_id(carInfo.getUser_id());
+		Reservation res = new Reservation();
+		res.setUser_id(carInfo.getUser_id());
+		res.setIs_reservation("1");  //开启预约
+		reservationMapper.create(res);
+		return carInfoMapper.create(carInfo);
+	}
+
+	public int updateCarInfo(CarInfo carInfo) {
+		carInfo.setUser_id(carInfo.getUser_id());
+		return carInfoMapper.update(carInfo);
+	}
+
+	/**
+	 * 完善车辆信息
+	 */
+	public void toCar(CarInfo carInfo) throws BaseException{
+		CarInfo ci = carInfoMapper.queryByUserId(carInfo.getUser_id());
+		if(ci==null){
+			int num = carInfoMapper.create(carInfo);
+			if(num < 0){
+				throw new BaseException("500001","创建数据失败!");
+			}
+		}else{
+			int num = carInfoMapper.updateCarInfo(carInfo);
+			if(num < 0){
+				throw new BaseException("500002","更新数据失败!");
+			}
+		}
+		
+	}
+
+}

@@ -1,0 +1,42 @@
+package com.cheyitou.common.controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.cheyitou.common.exception.BaseException;
+import com.cheyitou.common.po.vo.ResultVO;
+import com.cheyitou.common.service.OrderService;
+/**
+ * 订单
+ * @author Fox
+ *
+ */
+@Controller
+@RequestMapping("order")
+public class OrderController extends BaseController{
+	@Autowired
+	private OrderService orderService;
+	
+	/**
+	 * 解除订单
+	 */
+	@RequestMapping(value="/cancle_order",method=RequestMethod.POST)
+	@ResponseBody
+	public ResultVO toOrder(String orderNum,Integer userId) throws BaseException{
+		String orNum = orderService.toOrder(orderNum,userId);
+		return new ResultVO(orNum);
+	}
+	
+	/**
+	 * 提交完成订单
+	 */
+	@RequestMapping(value="/finish_order",method=RequestMethod.POST)
+	@ResponseBody  
+	public ResultVO toFinish(String front_image,String back_image,String side_image,Integer userId) throws BaseException{
+		orderService.toFinish(front_image,back_image,side_image,userId);
+		return new ResultVO(1,"提交订单成功");
+	}
+}

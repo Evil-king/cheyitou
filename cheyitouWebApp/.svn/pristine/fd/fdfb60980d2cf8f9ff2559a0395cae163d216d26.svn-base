@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cheyitou.common.dao.mapper.OrderMapper">
+
+  <resultMap id="RM_Order" type="com.cheyitou.common.model.po.Order">
+    <id column="ID" jdbcType="INTEGER" property="id" />
+    <result column="ORDER_NUM" jdbcType="VARCHAR" property="orderNum" />
+    <result column="ORDER_COUNT" jdbcType="VARCHAR" property="orderCount" />
+    <result column="ACCOUNT_BALANCE" jdbcType="DECIMAL" property="accountBalance" />
+    <result column="STATUS" jdbcType="CHAR" property="status" />
+    <result column="FRONT_IMG" jdbcType="VARCHAR" property="frontImg" />
+    <result column="BACK_IMG" jdbcType="VARCHAR" property="backImg" />
+    <result column="SIDE_IMG" jdbcType="VARCHAR" property="sideImg" />
+    <result column="USER_ID" jdbcType="INTEGER" property="userId" />
+    <result column="GET_CREATE" property="getCreate" jdbcType="TIMESTAMP" />
+    <result column="GET_MODIFIED" property="getModified" jdbcType="TIMESTAMP" />
+  </resultMap>
+  
+  <select id="queryByNum" parameterType="com.cheyitou.common.model.po.Order" resultMap="RM_Order">
+    select 
+     ID, ORDER_NUM, ORDER_COUNT, USER_ID,ACCOUNT_BALANCE, STATUS, FRONT_IMG,BACK_IMG,SIDE_IMG,GET_CREATE,GET_MODIFIED
+    from c_order where 
+    	<if test="orderNum !=null and orderNum !='' ">ORDER_NUM = #{orderNum}</if>
+  </select>
+  
+  <select id="count" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+   	select count(status) from c_order where STATUS=1 and USER_ID = #{userId}
+  </select>
+  
+  
+  <select id="queryByUserId" parameterType="com.cheyitou.common.model.po.Order" resultMap="RM_Order">
+    select 
+     ID, ORDER_NUM, ORDER_COUNT, USER_ID,ACCOUNT_BALANCE, STATUS, FRONT_IMG,BACK_IMG,SIDE_IMG,GET_CREATE,GET_MODIFIED
+    from c_order where USER_ID = #{userId}
+  </select>
+  
+  <insert id="create" parameterType="com.cheyitou.common.model.po.Order">
+    insert into c_order (
+      ID,
+      USER_ID, 
+      ORDER_NUM,
+      ORDER_COUNT, 
+      ACCOUNT_BALANCE, 
+      STATUS, 
+      FRONT_IMG,
+      BACK_IMG,
+      SIDE_IMG,
+      GET_CREATE, 
+      GET_MODIFIED
+      ) values (
+      #{id}, 
+      #{userId}, 
+      #{orderNum}, 
+      #{orderCount}, 
+      #{accountBalance}, 
+      #{status}, 
+      #{frontImg},
+      #{backImg},
+      #{sideImg},
+      now(),
+      now()
+      )
+  </insert>
+  
+  <update id="update" parameterType="com.cheyitou.common.model.po.Order">
+    update c_order
+    set GET_MODIFIED = now()
+      <if test="accountBalance !=null and accountBalance !='' ">,ACCOUNT_BALANCE = #{accountBalance}</if>
+      <if test="status !=null and status !='' ">,STATUS = #{status}</if>
+      <if test="frontImg !=null and frontImg !='' ">,FRONT_IMG = #{frontImg}</if>
+      <if test="backImg !=null and backImg !='' ">,BACK_IMG = #{backImg}</if>
+      <if test="sideImg !=null and sideImg !='' ">,SIDE_IMG = #{sideImg}</if>
+    where USER_ID = #{userId}
+  </update>
+  
+  <update id="updateToOrderNum" parameterType="com.cheyitou.common.model.po.Order">
+    update c_order
+    set GET_MODIFIED = now()
+      <if test="orderNum !=null and orderNum !='' ">,ORDER_NUM = #{orderNum}</if>
+      <if test="status !=null and status !='' ">,STATUS = #{status}</if>
+    where USER_ID = #{userId}
+  </update>
+  
+  
+</mapper>

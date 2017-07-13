@@ -1,0 +1,88 @@
+package com.cheyitou.common.model.po;
+
+import java.math.BigDecimal;
+import java.util.Date;
+
+public class Order {
+
+	private Integer id;
+	private String order_num;//订单编号
+	private String order_count;//订单数量
+	private BigDecimal account_balance;//账号余额
+	private String status;//状态 1|审核 2|成功
+	private Integer user_id;//user表的冗余字段
+	private String front_img;//正面
+	private String back_img;//背面
+	private String side_img;//侧面
+	private Date getCreate;//创建时间
+    private Date getModified;//修改时间
+	
+	
+	public Integer getId() {
+		return id;
+	}
+	public void setId(Integer id) {
+		this.id = id;
+	}
+	public String getOrder_num() {
+		return order_num;
+	}
+	public void setOrder_num(String order_num) {
+		this.order_num = order_num;
+	}
+	public String getOrder_count() {
+		return order_count;
+	}
+	public void setOrder_count(String order_count) {
+		this.order_count = order_count;
+	}
+	public BigDecimal getAccount_balance() {
+		return account_balance;
+	}
+	public void setAccount_balance(BigDecimal account_balance) {
+		this.account_balance = account_balance;
+	}
+	public String getStatus() {
+		return status;
+	}
+	public void setStatus(String status) {
+		this.status = status;
+	}
+	public Integer getUser_id() {
+		return user_id;
+	}
+	public void setUser_id(Integer user_id) {
+		this.user_id = user_id;
+	}
+	public String getFront_img() {
+		return front_img;
+	}
+	public void setFront_img(String front_img) {
+		this.front_img = front_img;
+	}
+	public String getBack_img() {
+		return back_img;
+	}
+	public void setBack_img(String back_img) {
+		this.back_img = back_img;
+	}
+	public String getSide_img() {
+		return side_img;
+	}
+	public void setSide_img(String side_img) {
+		this.side_img = side_img;
+	}
+	public Date getGetCreate() {
+		return getCreate;
+	}
+	public void setGetCreate(Date getCreate) {
+		this.getCreate = getCreate;
+	}
+	public Date getGetModified() {
+		return getModified;
+	}
+	public void setGetModified(Date getModified) {
+		this.getModified = getModified;
+	}
+	
+}

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cheyitou.common.dao.mapper.PersonMapper">
+
+  <resultMap id="RM_Person" type="com.cheyitou.common.model.po.Person">
+    <id column="ID" jdbcType="INTEGER" property="id" />
+    <result column="NAME" jdbcType="VARCHAR" property="name" />
+    <result column="SEX" jdbcType="CHAR" property="sex" />
+    <result column="MOBILE_PHONE" jdbcType="VARCHAR" property="mobile_phone" />
+    <result column="E_MAIL" jdbcType="VARCHAR" property="e_mail" />
+    <result column="PAY_ACCOUNT" jdbcType="VARCHAR" property="pay_account" />
+    <result column="ID_CARD" jdbcType="VARCHAR" property="id_card" />
+    <result column="DRVER_CARD" jdbcType="VARCHAR" property="drver_card" />
+    <result column="ADDRESS" jdbcType="VARCHAR" property="address" />
+    <result column="IMAGE" jdbcType="VARCHAR" property="image" />
+    <result column="GET_CREATE" jdbcType="TIMESTAMP" property="get_create" />
+    <result column="GET_MODIFIED" jdbcType="TIMESTAMP" property="get_modified" />
+    <result column="USER_ID" jdbcType="INTEGER" property="user_id" />
+  </resultMap>
+  
+  <select id="queryByUserId" parameterType="com.cheyitou.common.model.po.Person" resultMap="RM_Person">
+    select 
+     ID, USER_ID,NAME, SEX, MOBILE_PHONE, E_MAIL, PAY_ACCOUNT, ID_CARD, DRVER_CARD, ADDRESS, GET_CREATE,GET_MODIFIED
+    from c_person
+   <where>
+    <if test="user_id !=null and user_id >0 ">and USER_ID = #{user_id}</if>
+   </where>
+  </select>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from c_person
+    where ID = #{id}
+  </delete>
+  
+  <insert id="create" parameterType="com.cheyitou.common.model.po.Person">
+    insert into c_person (
+      ID, 
+      NAME, 
+      SEX, 
+      MOBILE_PHONE, 
+      E_MAIL, 
+      PAY_ACCOUNT, 
+      ID_CARD, 
+      DRVER_CARD, 
+      ADDRESS, 
+      GET_CREATE,
+      GET_MODIFIED,
+      USER_ID,
+      IMAGE
+      )values (
+      #{id}, 
+      #{name}, 
+      #{sex}, 
+      #{mobile_phone}, 
+      #{e_mail}, 
+      #{pay_account}, 
+      #{id_card}, 
+      #{drver_card}, 
+      #{address}, 
+      now(),
+      now(),
+      #{user_id},
+      #{image}
+      )
+  </insert>
+  
+  <update id="update" parameterType="com.cheyitou.common.model.po.Person">
+    update c_person
+    set GET_MODIFIED = now(),
+      <if test="name !=null and name !='' ">NAME = #{name},</if>
+      <if test="sex !=null and sex !='' ">SEX = #{sex},</if>
+      <if test="mobile_phone !=null and mobile_phone !='' ">MOBILE_PHONE = #{mobile_phone},</if>
+      <if test="e_mail !=null and e_mail !='' ">E_MAIL = #{e_mail},</if>
+      <if test="pay_account !=null and pay_account !='' ">PAY_ACCOUNT = #{pay_account},</if>
+      <if test="id_card !=null and id_card !='' ">ID_CARD = #{id_card},</if>
+      <if test="drver_card !=null and drver_card !='' ">DRVER_CARD = #{drver_card},</if>
+      <if test="address !=null and address !='' ">ADDRESS = #{address}</if>
+      <if test="image !=null and image !='' ">IMAGE = #{image}</if>
+    where USER_ID = #{user_id}
+  </update>
+  
+</mapper>

@@ -1,0 +1,101 @@
+package com.cheyitou.common.model.po;
+
+import java.math.BigDecimal;
+import java.util.Date;
+
+public class MyAccount {
+
+	   
+	private Integer id;
+	private String num_order_over;//已完成订单数
+	private BigDecimal account_amount;//账号余额
+	private BigDecimal get_amount;//提现金额
+	private String payment_flow;//支付流水
+	private Integer user_id;//冗余字段
+	private String funding_source;//资金来源
+	private String order_num;//订单编号
+	private Date get_create;//创建时间
+	private Date get_modified;//修改时间
+	
+	public Integer getUSER_ID() {
+		return user_id;
+	}
+
+	public void setUSER_ID(Integer uSER_ID) {
+		user_id = uSER_ID;
+	}
+
+	public Integer getID() {
+		return id;
+	}
+
+	public void setID(Integer ID) {
+		this.id = ID;
+	}
+
+	public String getNUM_ORDER_OVER() {
+		return num_order_over;
+	}
+
+	public void setNUM_ORDER_OVER(String NUM_ORDER_OVER) {
+		this.num_order_over = NUM_ORDER_OVER;
+	}
+
+	public BigDecimal getACCOUNT_AMOUNT() {
+		return account_amount;
+	}
+
+	public void setACCOUNT_AMOUNT(BigDecimal ACCOUNT_AMOUNT) {
+		this.account_amount = ACCOUNT_AMOUNT;
+	}
+
+	public BigDecimal getGET_AMOUNT() {
+		return get_amount;
+	}
+
+	public void setGET_AMOUNT(BigDecimal GET_AMOUNT) {
+		this.get_amount = GET_AMOUNT;
+	}
+
+	public String getPAYMENT_FLOW() {
+		return payment_flow;
+	}
+
+	public void setPAYMENT_FLOW(String PAYMENT_FLOW) {
+		this.payment_flow = PAYMENT_FLOW;
+	}
+
+	public String getFUNDING_SOURCE() {
+		return funding_source;
+	}
+
+	public void setFUNDING_SOURCE(String fUNDING_SOURCE) {
+		funding_source = fUNDING_SOURCE;
+	}
+
+	public String getORDER_NUM() {
+		return order_num;
+	}
+
+	public void setORDER_NUM(String oRDER_NUM) {
+		order_num = oRDER_NUM;
+	}
+
+	public Date getGet_create() {
+		return get_create;
+	}
+
+	public void setGet_create(Date get_create) {
+		this.get_create = get_create;
+	}
+
+	public Date getGet_modified() {
+		return get_modified;
+	}
+
+	public void setGet_modified(Date get_modified) {
+		this.get_modified = get_modified;
+	}
+	
+	
+}

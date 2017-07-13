@@ -1,0 +1,22 @@
+package com.cheyitou.common.service;
+
+import com.cheyitou.common.exception.BaseException;
+
+public interface OrderService {
+	
+	/**
+	 * 解除订单
+	 * @param orderNum
+	 * @return
+	 */
+	String toOrder(String orderNum,Integer userId)throws BaseException;
+	
+	/**
+	 * 提交订单
+	 * @param front_image
+	 * @param back_image
+	 * @param side_image
+	 */
+	void toFinish(String front_image, String back_image, String side_image,Integer userId)throws BaseException;
+
+}

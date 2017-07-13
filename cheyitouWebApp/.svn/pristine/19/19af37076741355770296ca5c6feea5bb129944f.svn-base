@@ -1,0 +1,57 @@
+package com.cheyitou.common.controller;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.cheyitou.common.enums.ErrorCode;
+import com.cheyitou.common.exception.BaseException;
+import com.cheyitou.common.helper.UserHelper;
+import com.cheyitou.common.model.po.Reservation;
+import com.cheyitou.common.po.vo.ResultVO;
+import com.cheyitou.common.service.ReservationService;
+
+
+/**
+ * 预约Controller
+ * @author Fox
+ *
+ */
+@Controller
+@RequestMapping("reservation")
+public class ReservationController {
+	@Autowired
+	private ReservationService reservationService;
+	/**
+	 * 提交预约
+	 */
+	@RequestMapping(value="/to_reservation",method=RequestMethod.POST)
+	@ResponseBody
+	public ResultVO toReservation(Date time,String address,String type)throws BaseException{
+		reservationService.toReservation(time,address,type);
+		return new ResultVO(1,"提交预约成功");
+	}
+	
+	/**
+	 * 预约信息显示
+	 */
+	@RequestMapping(value="/waitting",method=RequestMethod.POST)
+	@ResponseBody
+	public  ResultVO toWait() throws BaseException{
+		Map<String, Object> map = new HashMap<String,Object>();
+		Reservation res = reservationService.queryByUserId(UserHelper.getId());
+		if(res == null){
+			return new ResultVO(ErrorCode.ON_RESERVATION.getCode(),ErrorCode.ON_RESERVATION.getMsg());
+			} 
+		map.put("time", res.getGo_time());
+		map.put("address", res.getAddress());
+		map.put("type", res.getCar_type());
+		return new ResultVO(map);
+	}
+}

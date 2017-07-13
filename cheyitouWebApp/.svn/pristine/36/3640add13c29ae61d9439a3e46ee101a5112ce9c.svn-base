@@ -1,0 +1,117 @@
+package com.cheyitou.common.model.po;
+
+import java.util.Date;
+
+public class CarInfo {
+    private Integer id;
+
+    private String plate_number;//车牌
+
+    private String vehicle_brand;//车辆品牌
+
+    private String driving_license;//行驶证
+
+    private String certificate;//资格证
+
+    private Date go_time;//车辆出厂时间
+
+    private String inspection_number;//车辆年检编号
+
+    private String car_type;//车辆类型
+    
+    private Integer user_id;//冗余字段
+    
+    private Date getCreate;//创建时间
+
+    private Date getModified;//修改时间
+
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	public String getPlate_number() {
+		return plate_number;
+	}
+
+	public void setPlate_number(String plate_number) {
+		this.plate_number = plate_number;
+	}
+
+	public String getVehicle_brand() {
+		return vehicle_brand;
+	}
+
+	public void setVehicle_brand(String vehicle_brand) {
+		this.vehicle_brand = vehicle_brand;
+	}
+
+	public String getDriving_license() {
+		return driving_license;
+	}
+
+	public void setDriving_license(String driving_license) {
+		this.driving_license = driving_license;
+	}
+
+	public String getCertificate() {
+		return certificate;
+	}
+
+	public void setCertificate(String certificate) {
+		this.certificate = certificate;
+	}
+
+	public Date getGo_time() {
+		return go_time;
+	}
+
+	public void setGo_time(Date go_time) {
+		this.go_time = go_time;
+	}
+
+	public String getInspection_number() {
+		return inspection_number;
+	}
+
+	public void setInspection_number(String inspection_number) {
+		this.inspection_number = inspection_number;
+	}
+
+	public String getCar_type() {
+		return car_type;
+	}
+
+	public void setCar_type(String car_type) {
+		this.car_type = car_type;
+	}
+
+	public Integer getUser_id() {
+		return user_id;
+	}
+
+	public void setUser_id(Integer user_id) {
+		this.user_id = user_id;
+	}
+
+	public Date getGetCreate() {
+		return getCreate;
+	}
+
+	public void setGetCreate(Date getCreate) {
+		this.getCreate = getCreate;
+	}
+
+	public Date getGetModified() {
+		return getModified;
+	}
+
+	public void setGetModified(Date getModified) {
+		this.getModified = getModified;
+	}
+    
+    
+}

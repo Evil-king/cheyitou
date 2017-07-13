@@ -1,0 +1,7 @@
+package com.cheyitou.common.dao.mapper;
+
+import com.cheyitou.common.model.po.MyAccount;
+public interface MyAccountMapper {
+   
+    public MyAccount queryByUserId(Integer userId);
+}

@@ -1,0 +1,73 @@
+package com.cheyitou.common.service.impl;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.cheyitou.common.dao.mapper.OrderMapper;
+import com.cheyitou.common.dao.mapper.ReservationMapper;
+import com.cheyitou.common.exception.BaseException;
+import com.cheyitou.common.model.po.Reservation;
+import com.cheyitou.common.po.vo.ResultVO;
+import com.cheyitou.common.service.ReservationService;
+/**
+ * 预约实现类
+ * @author Fox
+ *
+ */
+@Service
+public class ReservationServiceImpl implements ReservationService {
+	@Autowired
+	private ReservationMapper reservationMapper;
+	@Autowired
+	private OrderMapper orderMapper;
+
+	/**
+	 * 创建预约单并同时生产订单
+	 */
+	public int create(Reservation rv) {
+		rv.setStatus("1");//审核中
+		rv.setIs_reservation("0");//默认不开启预约
+		//预约成功自动生成订单
+//		Order or = new Order();
+//		or.setOrder_num(RandomStringUtils.random(11, "1234567890"));
+//		or.setStatus("1");//审核
+//		or.setUser_id(UserHelper.getId());
+//		orderMapper.create(or);
+		return reservationMapper.create(rv);
+	}
+
+	public Reservation queryByUserId(Integer id) {
+		return reservationMapper.queryByUserId(id);
+	}
+
+	/**
+	 * 提交预约
+	 */
+	public void toReservation(Date time, String address, String type,Integer userId) throws BaseException{
+		Reservation rv = new Reservation();
+		rv.setGo_time(time);
+		rv.setAddress(address);
+		rv.setCar_type(type);
+		rv.setUser_id(userId);
+		int num = reservationMapper.create(rv);
+		if(num < 0)
+			throw new BaseException("400001","提交预约信息失败!");
+	}
+
+	/**
+	 * 预约信息显示
+	 */
+	public ResultVO toWait(Integer userId) throws BaseException {
+		Map<String, Object> map = new HashMap<String,Object>();
+		Reservation res = reservationMapper.queryByUserId(userId);
+		map.put("time", res.getGo_time());
+		map.put("address", res.getAddress());
+		map.put("type", res.getCar_type());
+		return new ResultVO(map);
+	}
+
+}

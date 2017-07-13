@@ -1,0 +1,121 @@
+package com.cheyitou.common.util;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class ConfigUtil {
+
+    private static Logger logger = LoggerFactory.getLogger(ConfigUtil.class);
+    
+    private static volatile Map<String, String> configuration = null;
+    
+    private ConfigUtil() {
+        try {
+            new Thread(new ReloadConfigThread()).start();
+        } catch (Exception e) {
+            logger.error("<ConfigUtil> start reload thread fail!", e);
+        }
+    }
+    
+    public static String get(String key) {
+        if (configuration == null) {
+            reload();
+        }
+        return configuration.get(key);
+    }
+    
+    public static HashMap loadConfig() {
+        Properties param = new Properties();
+        ClassLoader loader = Thread.currentThread().getContextClassLoader();
+        InputStream stream = loader.getResourceAsStream("config.properties");
+        if (stream == null) {
+            return new HashMap();
+        }
+        try {
+            param.load(stream);
+            stream.close();
+        } catch (IOException e) {
+            param = null;
+            logger.error("loadConfigParameter error.", e);
+        }
+
+        if (param == null) {
+            return new HashMap();
+        }
+        HashMap result = new HashMap();
+        result.putAll(param);
+        return result;
+    }
+    
+    /**
+     * 读取数据库
+     * @方法名： loadParameter
+     * @功能描述:
+     * @return HashMap
+     * @作者：chenjunjie
+     * @创建时间: 2016年5月12日.上午11:02:54
+     */
+    public static HashMap loadParameter() {
+        HashMap<String, String> result = new HashMap<String, String>();
+//        List<Parameter> list = parameterMapper.getAll();
+//        for (Parameter p : list) {
+//            param.put(p.getPName(), p.getPValue());
+//        }
+        return result;
+    }
+    
+    /**
+     * @方法名： reload
+     * @功能描述: void
+     * @作者：chenjunjie
+     * @创建时间: 2015-9-14.上午11:45:15
+     */
+    public synchronized static void reload() {
+        if (logger.isDebugEnabled()) {
+            logger.debug("-----------------------------------------------------");
+            logger.debug(" 重新装载参数信息");
+            logger.debug("-----------------------------------------------------");
+        }
+        Map<String, String> mapConfig = loadConfig();
+        Map<String, String> mapParam = loadParameter();
+        mapConfig.putAll(mapParam);
+        if(mapConfig.size() < 1){
+            logger.info("<reload> reload fail!");
+            return;
+        }
+        configuration = mapConfig;
+    }
+    
+    class ReloadConfigThread implements Runnable {
+        private Logger log = LoggerFactory.getLogger(ReloadConfigThread.class);
+
+        public void run() {
+            while (true) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("<run> begin reload config info!");
+                }
+                try {
+                    this.waitTime(2);
+                    ConfigUtil.reload();
+                } catch (Exception e) {
+                    logger.error("<run> reload config fail!", e);
+                }
+            }
+        }
+
+        public synchronized void waitTime(int minute) {
+            try {
+                wait(minute * 60 * 1000);
+            } catch (Exception e) {
+                logger.error("<waitTime> wait exec fail!", e);
+            }
+        }
+    }
+
+}

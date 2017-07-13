@@ -1,0 +1,12 @@
+package com.cheyitou.common.dao.mapper;
+
+import com.cheyitou.common.model.po.Reservation;
+public interface ReservationMapper {
+    
+	Reservation queryByUserId(Integer id);
+
+	int create(Reservation rv);
+
+	int update(Reservation res);
+	
+}

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cheyitou.common.dao.mapper.AdvertMapper">
+  <resultMap id="RM_Advert" type="com.cheyitou.common.model.po.Advert">
+   
+    <id column="ID" jdbcType="INTEGER" property="id" />
+    <result column="T_TYPE" jdbcType="CHAR" property="t_type" />
+    <result column="ADVERT_TYPE" jdbcType="CHAR" property="advert_type" />
+    <result column="CAR_TYPE" jdbcType="CHAR" property="car_type" />
+    <result column="GET_CREATE" property="getCreate" jdbcType="TIMESTAMP" />
+    <result column="GET_MODIFIED" property="getModified" jdbcType="TIMESTAMP" />
+  </resultMap>
+  
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="RM_Advert">
+    select 
+     ID, T_TYPE, ADVERT_TYPE, CAR_TYPE, GET_CREATE, GET_MODIFIED
+    from c_advert
+    where ID = #{id}
+  </select>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from c_advert
+    where ID = #{id}
+  </delete>
+  
+  <insert id="insert" parameterType="com.cheyitou.common.model.po.Advert">
+    insert into c_advert (ID, T_TYPE, ADVERT_TYPE, 
+      CAR_TYPE,GET_CREATE,GET_MODIFIED)
+    values (#{id}, #{t_type}, #{advert_type}, 
+      #{car_type},now(),now())
+  </insert>
+  
+  <update id="updateByPrimaryKey" parameterType="com.cheyitou.common.model.po.Advert">
+    update c_advert
+    set GET_MODIFIED=now(),
+      <if test="t_type !=null and t_type !='' ">T_TYPE = #{t_type},</if>
+      <if test="advert_type !=null and advert_type !='' ">ADVERT_TYPE = #{advert_type},</if>
+      <if test="car_type !=null and car_type !='' ">CAR_TYPE = #{car_type}</if>
+    where USER_ID = #{user_id}
+  </update>
+</mapper>

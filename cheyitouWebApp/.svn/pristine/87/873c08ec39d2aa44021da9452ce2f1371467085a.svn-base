@@ -1,0 +1,173 @@
+package com.cheyitou.common.helper;
+
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.codec.digest.DigestUtils;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
+import com.cheyitou.common.enums.UserSessionEnums;
+import com.cheyitou.common.exception.BaseException;
+import com.cheyitou.common.util.MD5;
+import com.cheyitou.common.util.SHA256;
+import com.cheyitou.common.util.SessionIdCache;
+import com.cheyitou.common.util.SessionManager;
+import com.cheyitou.common.util.StringUtil;
+
+
+public class UserHelper {
+	/**
+	 * 获取会员ID
+	 * 
+	 * @return
+	 */
+	public static Integer getId() {
+
+		String memberId = getManager().getValue(UserSessionEnums._MALL_FORM.getName(),
+				UserSessionEnums._MALL_FORM_ID.getName(), true);
+		if (StringUtil.isEmpty(memberId) || "null".equalsIgnoreCase(memberId)) {
+			return 0;
+		}
+		return StringUtil.isEmpty(memberId) ? 0 : Integer.parseInt(memberId);
+	}
+
+	/**
+	 * 获取短信code
+	 */
+	public static String getCode() {
+		return getManager().getValue(UserSessionEnums._MALL_FORM.getName(),
+				UserSessionEnums._MALL_FORM_CODE.getName(), true);
+	}
+
+	/**
+	 * 获取会员手机号码
+	 * 
+	 * @return
+	 */
+	public static String getPhone() {
+
+		return getManager().getValue(UserSessionEnums._MALL_FORM.getName(),
+				UserSessionEnums._MALL_FORM_PHONE.getName(), true);
+	}
+
+	 /**
+     * @方法名： setUserId
+     * @功能描述：设置会员ID
+     * @param request
+     * @param response
+     * @param memberId void
+     * @创建时间：2016年5月19日 下午3:59:22
+     */
+    public static void setUserId(HttpServletRequest request, HttpServletResponse response, Integer userId) {
+        String requestType = request.getHeader("X-Requested-With");
+        boolean isAjax = "XMLHttpRequest".equals(requestType);
+        if (isAjax) {
+            // PC端存入cookie
+        } else {
+            // 移动端存入Header
+            String sid = DigestUtils.md5Hex(userId.toString());
+            SessionIdCache.setValue(sid, userId);
+            response.addHeader("sid", sid);
+        }
+    }
+	
+    /**
+     * @方法名： getUserId
+     * @功能描述：获取会员ID
+     * @param request
+     * @return Integer
+     * @throws HeMiException 
+     * @作者：caiwl
+     * @创建时间：2016年5月10日 上午11:25:00
+     */
+    public static Integer getUserId(HttpServletRequest request) throws BaseException {
+        String requestType = request.getHeader("X-Requested-With");
+        boolean isAjax = "XMLHttpRequest".equals(requestType);
+        if (isAjax) {
+            return (Integer) request.getAttribute("userId");
+        } else {
+            String sid = request.getHeader("sid");
+            if (StringUtil.isEmpty(sid)) {
+                throw new BaseException("用户未登录，无法调用该接口！");
+            }
+            Integer userId = SessionIdCache.getValue(sid);
+            if (userId == null) {
+                throw new BaseException("SID失效，需要重新登录！");
+            }
+            return userId;
+        }
+    }
+    
+    /**
+     * @方法名： getIP
+     * @功能描述：获取请求IP
+     * @param request
+     * @return String
+     * @作者：caiwl
+     * @创建时间：2016年5月10日 上午11:24:44
+     */
+    public static String getIP(HttpServletRequest request) {
+        String ip = request.getHeader("x-forwarded-for");
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("Proxy-Client-IP");
+        }
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("WL-Proxy-Client-IP");
+        }
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getRemoteAddr();
+        }
+        return ip;
+    }
+//	/**
+//	 * 获取会员密码
+//	 */
+//	public static String getPasswd(){
+//		
+//		return getManager().getValue(UserSessionEnums._MALL_FORM.getName(), UserSessionEnums._MALL_FORM_PASSWD.getName(),true);
+//	}
+	
+	
+	/** 
+	 * 加密密码明文
+	 * 
+	 * @param passwd
+	 * @return
+	 */
+	public static String getEntryPasswd(String passwd) {
+		passwd = SHA256.encrypt(passwd);
+
+		return MD5.encryptMD5(passwd);
+	}
+	
+//	/**
+//	 * 写入更新日期
+//	 */
+//	public static void writeLastTime(){
+//		SessionManager manager = new SessionManager(getRequest());
+//		manager.setValue(UserSessionEnums._MALL_FORM_LAST_TIME.getName(), UserSessionEnums._MALL_FORM_LAST_TIME.getName(), String.valueOf(new Date().getTime()),true);
+//		manager.save(getRequest(), UserSessionEnums._MALL_FORM_LAST_TIME.getName(),true);
+//	}
+	
+	public static HttpServletRequest getRequest() {
+
+		return ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+	}
+
+	public static HttpServletResponse getResponse() {
+
+		return ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getResponse();
+	}
+
+	private static SessionManager getManager() {
+
+		return new SessionManager(getRequest());
+	}
+
+	public static void cleanAll() {
+		getRequest().getSession().invalidate();
+	}
+
+}

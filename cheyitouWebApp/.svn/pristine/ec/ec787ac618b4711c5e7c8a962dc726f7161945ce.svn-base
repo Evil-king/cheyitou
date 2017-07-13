@@ -1,0 +1,58 @@
+package com.cheyitou.common.service.impl;
+
+import java.text.SimpleDateFormat;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.cheyitou.common.dao.mapper.OrderMapper;
+import com.cheyitou.common.dao.mapper.PersonMapper;
+import com.cheyitou.common.dao.mapper.ReservationMapper;
+import com.cheyitou.common.exception.BaseException;
+import com.cheyitou.common.helper.UserHelper;
+import com.cheyitou.common.model.po.Order;
+import com.cheyitou.common.model.po.Person;
+import com.cheyitou.common.model.po.Reservation;
+import com.cheyitou.common.po.vo.ResultVO;
+import com.cheyitou.common.service.IndexService;
+
+public class IndexServiceImpl implements IndexService {
+	@Autowired
+	private PersonMapper personMapper;
+	@Autowired
+	private OrderMapper orderMapper;
+	@Autowired
+	private ReservationMapper reservationMapper;
+
+	/**
+	 * 首页数据
+	 */
+	public ResultVO toIndex() {
+		Map<String,Object> map = new HashMap<String,Object>();
+		
+		Person  pp  = personMapper.queryByUserId(UserHelper.getId());//
+		if(pp ==null){
+			throw new BaseException("用户不存在!");
+		   }
+		Order or = orderMapper.queryByUserId(UserHelper.getId());//UserHelper.getId()
+		if(or ==null){
+			throw new BaseException("没有订单!");
+		   }
+		Reservation rv = reservationMapper.queryByUserId(UserHelper.getId());//UserHelper.getId()
+		if(rv == null){
+			throw new BaseException("没有预约！");
+		   }
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		String days = sdf.format(rv.getGo_time());
+		map.put("name", pp.getName());
+		map.put("image", pp.getImage());
+		map.put("days", days);
+		map.put("orderNum", or.getOrder_num());
+		map.put("is_person", rv.getIs_reservation());//是否可以预约（依据是个人设置是否完成）
+		map.put("status", or.getStatus());//订单状态
+	
+		return new ResultVO(map);
+	}
+
+}
